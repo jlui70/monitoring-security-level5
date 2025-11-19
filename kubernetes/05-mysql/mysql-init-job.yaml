@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-init-schema
+  namespace: monitoring
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait-for-mysql
+        image: mysql:8.3
+        command:
+        - sh
+        - -c
+        - |
+          echo "Aguardando MySQL estar pronto..."
+          until mysql -h mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; do
+            echo "  Tentando conectar..."
+            sleep 5
+          done
+          echo "✅ MySQL está pronto!"
+          
+          echo "Criando usuário zabbix..."
+          mysql -h mysql -uroot -p${MYSQL_ROOT_PASSWORD} <<EOF
+          CREATE USER IF NOT EXISTS 'zabbix'@'%' IDENTIFIED BY '${ZABBIX_PASSWORD}';
+          GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'%';
+          FLUSH PRIVILEGES;
+          SELECT User, Host FROM mysql.user WHERE User='zabbix';
+          EOF
+          echo "✅ Usuário zabbix configurado!"
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: root-password
+        - name: ZABBIX_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: zabbix-password
+      containers:
+      - name: init-schema
+        image: zabbix/zabbix-server-mysql:alpine-7.0.5
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          echo "Verificando se schema já existe..."
+          TABLES=$(mysql -h mysql -uzabbix -p${DB_PASS} zabbix -e "SHOW TABLES;" 2>/dev/null | wc -l)
+          if [ $TABLES -gt 1 ]; then
+            echo "Schema já inicializado ($TABLES tabelas)"
+            exit 0
+          fi
+          echo "Inicializando schema Zabbix..."
+          zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -h mysql -uzabbix -p${DB_PASS} zabbix
+          echo "✅ Schema criado com sucesso!"
+        env:
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: zabbix-password

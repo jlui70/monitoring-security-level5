@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-web
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zabbix
+      component: web
+  template:
+    metadata:
+      labels:
+        app: zabbix
+        component: web
+    spec:
+      initContainers:
+      - name: wait-for-zabbix-server
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - |
+          until nc -z zabbix-server 10051; do
+            echo "Aguardando Zabbix Server..."
+            sleep 5
+          done
+      containers:
+      - name: zabbix-web
+        image: zabbix/zabbix-web-nginx-mysql:alpine-7.0.5
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_SERVER_HOST
+          value: "mysql"
+        - name: MYSQL_DATABASE
+          value: "zabbix"
+        - name: MYSQL_USER
+          value: "zabbix"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: zabbix-secret
+              key: database-password
+        - name: ZBX_SERVER_HOST
+          value: "zabbix-server"
+        - name: PHP_TZ
+          value: "America/Sao_Paulo"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5

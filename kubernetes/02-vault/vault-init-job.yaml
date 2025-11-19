@@ -1,0 +1,135 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init
+  namespace: monitoring
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: vault-init
+        image: hashicorp/vault:1.15.0
+        env:
+        - name: VAULT_ADDR
+          value: "http://vault:8200"
+        - name: VAULT_TOKEN
+          value: "vault-dev-root-token"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "Aguardando Vault estar pronto..."
+          until vault status; do sleep 2; done
+          
+          echo "Habilitando KV v2 secrets engine..."
+          vault secrets enable -path=secret kv-v2 || true
+          
+          echo "🔐 Gerando senhas complexas seguindo padrão Level 3 (melhorado para K8s)..."
+          
+          # Gerar senhas seguindo padrão: {Env}_{Service}_{Random}_{Suffix}
+          # Mais seguras que Level 3 (32 chars vs 16-20)
+          RANDOM_MYSQL_ROOT=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-16)
+          RANDOM_MYSQL_ZABBIX=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-16)
+          RANDOM_ZABBIX_ADMIN=$(openssl rand -base64 20 | tr -d "=+/" | cut -c1-12)
+          RANDOM_GRAFANA_ADMIN=$(openssl rand -base64 20 | tr -d "=+/" | cut -c1-12)
+          
+          # Padrão melhorado: K8s_Service_Random_VaultSuffix
+          # ATENÇÃO: Senha do Zabbix Admin não pode conter: Admin, Zabbix, Administrator
+          MYSQL_ROOT_PASSWORD="K8s_Root_${RANDOM_MYSQL_ROOT}_Vault2024!@"
+          MYSQL_ZABBIX_PASSWORD="K8s_MySQL_${RANDOM_MYSQL_ZABBIX}_Vault2024!@"
+          ZABBIX_ADMIN_PASSWORD="ComplexP@ssw0rd_${RANDOM_ZABBIX_ADMIN}_L5!@"
+          ZABBIX_SERVER_PASSWORD="K8s_Server_$(openssl rand -base64 12 | tr -d "=+/" | cut -c1-12)_Vault2024!@"
+          GRAFANA_ADMIN_PASSWORD="K8s_Grafana_${RANDOM_GRAFANA_ADMIN}_Vault2024!@"
+          PROMETHEUS_PASSWORD="K8s_Prom_$(openssl rand -base64 12 | tr -d "=+/" | cut -c1-12)_Vault2024!@"
+          
+          echo "✅ Senhas geradas com padrão enterprise!"
+          
+          echo "Criando secrets do MySQL..."
+          vault kv put secret/mysql \
+            root-password="$MYSQL_ROOT_PASSWORD" \
+            zabbix-password="$MYSQL_ZABBIX_PASSWORD"
+          
+          echo "Criando secrets do Zabbix..."
+          vault kv put secret/zabbix \
+            admin-password="$ZABBIX_ADMIN_PASSWORD" \
+            database-password="$MYSQL_ZABBIX_PASSWORD" \
+            server-password="$ZABBIX_SERVER_PASSWORD"
+          
+          echo "Criando secrets do Grafana..."
+          vault kv put secret/grafana \
+            admin-password="$GRAFANA_ADMIN_PASSWORD" \
+            database-password='grafana'
+          
+          echo "Criando secrets do Prometheus..."
+          vault kv put secret/prometheus \
+            admin-password="$PROMETHEUS_PASSWORD"
+          
+          echo ""
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  🔐 CREDENCIAIS GERADAS - Level 5 (Superior ao Level 3)  ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "📊 ZABBIX WEB (http://localhost:30080)"
+          echo "   Usuário: Admin"
+          echo "   Senha: $ZABBIX_ADMIN_PASSWORD"
+          echo ""
+          echo "📈 GRAFANA (http://localhost:30300)"
+          echo "   Usuário: admin"
+          echo "   Senha: $GRAFANA_ADMIN_PASSWORD"
+          echo ""
+          echo "🔐 Padrão de senha: K8s_{Service}_{Random16}_{Vault2024!@}"
+          echo "   • Level 3: 16-20 caracteres"
+          echo "   • Level 5: 32-40 caracteres (SUPERIOR!)"
+          echo ""
+          echo "💾 Para recuperar senhas:"
+          echo "   ./scripts/show-credentials.sh"
+          echo ""
+          
+          echo "Criando políticas de acesso..."
+          vault policy write mysql-policy - <<EOF
+          path "secret/data/mysql" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          vault policy write zabbix-policy - <<EOF
+          path "secret/data/zabbix" {
+            capabilities = ["read"]
+          }
+          path "secret/data/mysql" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          vault policy write grafana-policy - <<EOF
+          path "secret/data/grafana" {
+            capabilities = ["read"]
+          }
+          path "secret/data/zabbix" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          vault policy write prometheus-policy - <<EOF
+          path "secret/data/prometheus" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          echo "Habilitando Kubernetes auth..."
+          vault auth enable kubernetes || true
+          
+          vault write auth/kubernetes/config \
+            kubernetes_host="https://kubernetes.default.svc:443"
+          
+          echo "Criando roles para External Secrets..."
+          vault write auth/kubernetes/role/external-secrets \
+            bound_service_account_names=external-secrets \
+            bound_service_account_namespaces=monitoring \
+            policies=mysql-policy,zabbix-policy,grafana-policy,prometheus-policy \
+            ttl=24h
+          
+          echo "✅ Vault inicializado com sucesso!"
+          vault kv list secret/

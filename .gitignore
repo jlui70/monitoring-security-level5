@@ -1,0 +1,43 @@
+# Monitoring Security Level 5 - GitIgnore
+
+# Credentials e arquivos sensíveis
+credentials.txt
+*.key
+*.pem
+*.crt
+secrets/
+.env*
+
+# Kubernetes
+*.kubeconfig
+kubeconfig*
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+COMANDOS-RAPIDOS.sh
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Backups
+*.bak
+backup/
+
+# Kind cluster data
+.kind/
+secrets/
+*.key
+*.pem
+credentials.txt
