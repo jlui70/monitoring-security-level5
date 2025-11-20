@@ -1,162 +1,162 @@
-# 🤝 Contributing to Monitoring Security Evolution - Level 5
+# 🤝 Contribuindo para o Monitoring Security Evolution - Nível 5
 
-Thank you for your interest in contributing! This document provides guidelines for contributing to this project.
+Obrigado pelo seu interesse em contribuir! Este documento fornece diretrizes para contribuir com este projeto.
 
-## 🎯 How to Contribute
+## 🎯 Como Contribuir
 
-### Reporting Issues
+### Reportando Problemas
 
-1. **Check existing issues** - Search to avoid duplicates
-2. **Use issue templates** - Provide all requested information
-3. **Be specific** - Include error messages, logs, and environment details
+1. **Verifique issues existentes** - Busque para evitar duplicatas
+2. **Use templates de issue** - Forneça todas as informações solicitadas
+3. **Seja específico** - Inclua mensagens de erro, logs e detalhes do ambiente
 
-### Suggesting Features
+### Sugerindo Funcionalidades
 
-1. Open an issue with the "Feature Request" label
-2. Describe the feature and its benefits
-3. Provide examples or mockups if applicable
+1. Abra uma issue com o label "Feature Request"
+2. Descreva a funcionalidade e seus benefícios
+3. Forneça exemplos ou mockups se aplicável
 
-### Code Contributions
+### Contribuições de Código
 
-#### Before You Start
+#### Antes de Começar
 
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR-USERNAME/monitoring-security-level5.git`
-3. Create a feature branch: `git checkout -b feature/your-feature-name`
+1. Faça fork do repositório
+2. Clone seu fork: `git clone https://github.com/SEU-USUARIO/monitoring-security-level5.git`
+3. Crie uma branch de feature: `git checkout -b feature/nome-da-sua-feature`
 
-#### Development Workflow
+#### Fluxo de Desenvolvimento
 
-1. **Make changes** in your feature branch
-2. **Test thoroughly**:
+1. **Faça alterações** na sua branch de feature
+2. **Teste completamente**:
    ```bash
-   # Clean environment
+   # Ambiente limpo
    ./scripts/cleanup.sh
    
-   # Fresh deployment
+   # Deploy fresh
    ./setup.sh
    
-   # Verify all pods Running
+   # Verifique todos os pods Running
    kubectl get pods -n monitoring
    
-   # Check ExternalSecrets synced
+   # Cheque ExternalSecrets sincronizados
    kubectl get externalsecrets -n monitoring
    
-   # Test web UIs
+   # Teste as interfaces web
    ./scripts/test-urls.sh
    ```
 
-3. **Follow code style**:
-   - Use 2 spaces for YAML indentation
-   - Use 4 spaces for Bash scripts
-   - Add comments for complex logic
-   - Use meaningful variable names
+3. **Siga o estilo de código**:
+   - Use 2 espaços para indentação YAML
+   - Use 4 espaços para scripts Bash
+   - Adicione comentários para lógica complexa
+   - Use nomes de variáveis significativos
 
-4. **Update documentation**:
-   - Update README.md if adding new features
-   - Add troubleshooting entries if fixing bugs
-   - Update docs/ as needed
+4. **Atualize a documentação**:
+   - Atualize README.md se adicionar novas features
+   - Adicione entradas de troubleshooting se corrigir bugs
+   - Atualize docs/ conforme necessário
 
-5. **Commit your changes**:
+5. **Faça commit das suas alterações**:
    ```bash
    git add .
-   git commit -m "feat: Add new feature description"
+   git commit -m "feat: Adiciona descrição da nova funcionalidade"
    ```
 
-#### Commit Message Guidelines
+#### Diretrizes de Mensagens de Commit
 
 Use conventional commits:
 
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `refactor:` - Code refactoring
-- `test:` - Adding tests
-- `chore:` - Maintenance tasks
+- `feat:` - Nova funcionalidade
+- `fix:` - Correção de bug
+- `docs:` - Alterações na documentação
+- `refactor:` - Refatoração de código
+- `test:` - Adição de testes
+- `chore:` - Tarefas de manutenção
 
-Examples:
+Exemplos:
 ```
-feat: Add PostgreSQL support for Zabbix
-fix: Resolve MySQL CrashLoopBackOff issue
-docs: Update troubleshooting guide
-refactor: Improve deploy.sh error handling
+feat: Adiciona suporte a PostgreSQL para Zabbix
+fix: Resolve problema de MySQL CrashLoopBackOff
+docs: Atualiza guia de troubleshooting
+refactor: Melhora tratamento de erros no deploy.sh
 ```
 
-#### Pull Request Process
+#### Processo de Pull Request
 
-1. **Push to your fork**: `git push origin feature/your-feature-name`
-2. **Open a Pull Request** on GitHub
-3. **Fill out the PR template** completely
-4. **Wait for review** - Address any feedback
-5. **Ensure CI passes** (if configured)
+1. **Push para seu fork**: `git push origin feature/nome-da-sua-feature`
+2. **Abra um Pull Request** no GitHub
+3. **Preencha o template do PR** completamente
+4. **Aguarde review** - Atenda qualquer feedback
+5. **Garanta que CI passa** (se configurado)
 
-### Testing Guidelines
+### Diretrizes de Testes
 
-#### Minimum Testing Requirements
+#### Requisitos Mínimos de Teste
 
-All contributions MUST pass:
+Todas as contribuições DEVEM passar:
 
 ```bash
-# 1. Environment check
+# 1. Verificação de ambiente
 ./scripts/check-environment.sh
 
-# 2. Clean deployment
+# 2. Deploy limpo
 ./scripts/cleanup.sh
 ./setup.sh
 
-# 3. Validation
+# 3. Validação
 kubectl get pods -n monitoring
-# All pods must be Running/Completed
+# Todos os pods devem estar Running/Completed
 
 kubectl get externalsecrets -n monitoring
-# All must show SecretSynced and Ready=True
+# Todos devem mostrar SecretSynced e Ready=True
 
-# 4. Web UI tests
+# 4. Testes de UI web
 curl -s http://localhost:30300 | grep -q "Grafana" && echo "✅ Grafana OK"
 curl -s http://localhost:30080 | grep -q "Zabbix" && echo "✅ Zabbix OK"
 curl -s http://localhost:30900 | grep -q "Prometheus" && echo "✅ Prometheus OK"
 ```
 
-#### What to Test
+#### O que Testar
 
-- **Fresh install** - Clean environment deployment
-- **Idempotency** - Run `./setup.sh` twice without errors
-- **Recovery** - Test auto-recovery features (e.g., corrupted volumes)
-- **Configuration** - Verify Zabbix and Grafana configs apply correctly
-- **Web UIs** - Ensure all services are accessible
+- **Instalação fresh** - Deploy em ambiente limpo
+- **Idempotência** - Executar `./setup.sh` duas vezes sem erros
+- **Recuperação** - Testar features de auto-recovery (ex: volumes corrompidos)
+- **Configuração** - Verificar se configs do Zabbix e Grafana aplicam corretamente
+- **UIs Web** - Garantir que todos os serviços estão acessíveis
 
-### Code Quality Standards
+### Padrões de Qualidade de Código
 
-#### Bash Scripts
+#### Scripts Bash
 
 ```bash
 #!/bin/bash
 
-# Use strict mode
-set -e  # Exit on error
+# Use modo estrito
+set -e  # Sai em caso de erro
 
-# Add descriptive comments
-# This function deploys the monitoring stack
+# Adicione comentários descritivos
+# Esta função faz deploy da stack de monitoramento
 deploy_monitoring() {
-    echo "📊 Deploying monitoring components..."
+    echo "📊 Fazendo deploy dos componentes de monitoramento..."
     
-    # Check prerequisites
+    # Verifique pré-requisitos
     if ! command -v kubectl &> /dev/null; then
-        echo "❌ kubectl not found"
+        echo "❌ kubectl não encontrado"
         exit 1
     fi
     
-    # Deploy with error handling
+    # Deploy com tratamento de erro
     kubectl apply -f kubernetes/monitoring/ || {
-        echo "❌ Deployment failed"
+        echo "❌ Deploy falhou"
         return 1
     }
 }
 ```
 
-#### Kubernetes Manifests
+#### Manifestos Kubernetes
 
 ```yaml
-# Use proper labels
+# Use labels apropriados
 apiVersion: v1
 kind: Service
 metadata:
@@ -166,97 +166,97 @@ metadata:
     component: frontend
     managed-by: monitoring-security-level5
 spec:
-  # Add comments for non-obvious configurations
-  # ClusterIP for internal-only access
+  # Adicione comentários para configurações não óbvias
+  # ClusterIP para acesso somente interno
   type: ClusterIP
 ```
 
-#### Documentation
+#### Documentação
 
-- Use clear headings
-- Add code examples
-- Include expected outputs
-- Provide troubleshooting steps
+- Use títulos claros
+- Adicione exemplos de código
+- Inclua outputs esperados
+- Forneça passos de troubleshooting
 
-## 🔒 Security
+## 🔒 Segurança
 
-### Reporting Security Issues
+### Reportando Problemas de Segurança
 
-**DO NOT** open public issues for security vulnerabilities.
+**NÃO** abra issues públicas para vulnerabilidades de segurança.
 
-Instead:
-1. Email the maintainers privately
-2. Provide detailed description
-3. Include reproduction steps
-4. Wait for confirmation before disclosure
+Em vez disso:
+1. Envie email aos mantenedores privativamente
+2. Forneça descrição detalhada
+3. Inclua passos de reprodução
+4. Aguarde confirmação antes de divulgar
 
-### Security Best Practices
+### Boas Práticas de Segurança
 
-- Never commit secrets or credentials
-- Use Vault for all sensitive data
-- Follow principle of least privilege
-- Keep dependencies updated
+- Nunca faça commit de secrets ou credenciais
+- Use Vault para todos os dados sensíveis
+- Siga o princípio do menor privilégio
+- Mantenha dependências atualizadas
 
-## 📋 Project Structure
+## 📋 Estrutura do Projeto
 
 ```
 monitoring-security-level5/
-├── scripts/                # Automation scripts
-│   ├── deploy.sh          # Main deployment logic
-│   ├── cleanup.sh         # Cleanup script
-│   └── configure-*.sh     # Configuration scripts
-├── kubernetes/            # K8s manifests (numbered for deploy order)
+├── scripts/                # Scripts de automação
+│   ├── deploy.sh          # Lógica principal de deployment
+│   ├── cleanup.sh         # Script de limpeza
+│   └── configure-*.sh     # Scripts de configuração
+├── kubernetes/            # Manifestos K8s (numerados para ordem de deploy)
 │   ├── 01-namespace/
 │   ├── 02-vault/
 │   └── ...
-├── docs/                  # Documentation
-│   ├── guides/           # User guides
-│   └── troubleshooting/  # Troubleshooting docs
-└── README.md             # Main documentation
+├── docs/                  # Documentação
+│   ├── guides/           # Guias de usuário
+│   └── troubleshooting/  # Docs de troubleshooting
+└── README.md             # Documentação principal
 ```
 
-### Adding New Components
+### Adicionando Novos Componentes
 
-1. Create directory in `kubernetes/` with appropriate number
-2. Add deployment logic to `scripts/deploy.sh`
-3. Update `README.md` architecture diagram
-4. Add configuration script if needed
-5. Document in `docs/guides/`
+1. Crie diretório em `kubernetes/` com número apropriado
+2. Adicione lógica de deployment em `scripts/deploy.sh`
+3. Atualize diagrama de arquitetura no `README.md`
+4. Adicione script de configuração se necessário
+5. Documente em `docs/guides/`
 
-## 🎓 Learning Resources
+## 🎓 Recursos de Aprendizado
 
-### Understanding the Stack
+### Entendendo a Stack
 
-- [Vault Documentation](https://www.vaultproject.io/docs)
+- [Documentação Vault](https://www.vaultproject.io/docs)
 - [External Secrets Operator](https://external-secrets.io/)
 - [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
-- [Zabbix Documentation](https://www.zabbix.com/documentation/current/)
-- [Prometheus Documentation](https://prometheus.io/docs/)
-- [Grafana Documentation](https://grafana.com/docs/)
+- [Documentação Zabbix](https://www.zabbix.com/documentation/current/)
+- [Documentação Prometheus](https://prometheus.io/docs/)
+- [Documentação Grafana](https://grafana.com/docs/)
 
-### Development Environment
+### Ambiente de Desenvolvimento
 
-Recommended tools:
-- VS Code with YAML and Kubernetes extensions
-- kubectl with auto-completion
-- k9s for cluster management
-- Docker Desktop or Podman
+Ferramentas recomendadas:
+- VS Code com extensões YAML e Kubernetes
+- kubectl com auto-completion
+- k9s para gerenciamento de cluster
+- Docker Desktop ou Podman
 
-## ❓ Questions?
+## ❓ Dúvidas?
 
-- Open a discussion on GitHub
-- Check existing issues and PRs
-- Review documentation in `docs/`
+- Abra uma discussão no GitHub
+- Verifique issues e PRs existentes
+- Revise a documentação em `docs/`
 
-## 🌟 Recognition
+## 🌟 Reconhecimento
 
-Contributors will be:
-- Listed in CONTRIBUTORS.md
-- Mentioned in release notes
-- Credited in relevant documentation
+Contribuidores serão:
+- Listados em CONTRIBUTORS.md
+- Mencionados nas notas de release
+- Creditados na documentação relevante
 
 ---
 
-Thank you for contributing! 🙏
+Obrigado por contribuir! 🙏
 
-Every contribution, no matter how small, helps improve this project for everyone.
+Toda contribuição, não importa quão pequena, ajuda a melhorar este projeto para todos.
