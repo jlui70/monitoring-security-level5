@@ -513,7 +513,6 @@ Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para de
 
 - 📖 [Documentação Completa](./docs/)
 - 🐛 [Reportar Issues](https://github.com/jlui70/monitoring-security-level5/issues)
-- 💡 [Discussões](https://github.com/jlui70/monitoring-security-level5/discussions)
 - ⭐ Se este projeto ajudou você, considere dar uma estrela!
 
 ---
