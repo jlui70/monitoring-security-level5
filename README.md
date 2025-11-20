@@ -29,7 +29,7 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>Level&nbsp;1</strong></td>
+<td><strong><a href="https://github.com/jlui70/monitoring-security-level1">Level&nbsp;1</a></strong></td>
 <td>Baseline</td>
 <td>Hardcoded</td>
 <td>Código fonte</td>
@@ -37,7 +37,7 @@
 <td>✅</td>
 </tr>
 <tr>
-<td><strong>Level&nbsp;2</strong></td>
+<td><strong><a href="https://github.com/jlui70/monitoring-security-level2">Level&nbsp;2</a></strong></td>
 <td>Env Vars</td>
 <td><code>.env</code> files</td>
 <td><code>.env</code></td>
@@ -45,7 +45,7 @@
 <td>✅</td>
 </tr>
 <tr>
-<td><strong>Level&nbsp;3</strong></td>
+<td><strong><a href="https://github.com/jlui70/monitoring-security-level3">Level&nbsp;3</a></strong></td>
 <td>Vault Foundation</td>
 <td>Vault + <code>.env</code></td>
 <td><code>.env</code></td>
@@ -53,7 +53,7 @@
 <td>✅</td>
 </tr>
 <tr>
-<td><strong>Level&nbsp;4</strong></td>
+<td><strong><a href="https://github.com/jlui70/monitoring-security-level4-aws-v2">Level&nbsp;4</a></strong></td>
 <td>AWS Cloud</td>
 <td>AWS Secrets Manager</td>
 <td>AWS API</td>
@@ -61,7 +61,7 @@
 <td>✅</td>
 </tr>
 <tr>
-<td><strong>Level&nbsp;5</strong></td>
+<td><strong><a href="https://github.com/jlui70/monitoring-security-level5">Level&nbsp;5</a></strong></td>
 <td><strong>K8s + Vault</strong></td>
 <td><strong>Vault (KV v2)</strong></td>
 <td><strong>Kubernetes Secrets</strong></td>
