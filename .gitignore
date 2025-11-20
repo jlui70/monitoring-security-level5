@@ -1,43 +1,57 @@
-# Monitoring Security Level 5 - GitIgnore
+# Arquivos mantidos apenas localmente (não vão para GitHub)
+docs/guides/CHECKLIST-TESTE-PROFESSORES.md
+docs/guides/DEPLOYMENT-COMPLETO.md
+docs/guides/INSTRUCOES-DEPLOYMENT.md
+docs/guides/RESUMO-DEPLOY-SUCESSO.md
+docs/guides/TESTE-CLEAN-INSTALL.md
+docs/troubleshooting/TESTE-FINAL.md
+docs/troubleshooting/VALIDACAO-DEPLOY.md
+docs/INDEX.md
+docs/RESPOSTA-MULTI-CLOUD.md
+docs/RESUMO-EXECUTIVO.md
+docs/TROUBLESHOOTING.md
+BADGES-PADRONIZACAO.md
+ORGANIZACAO-PROJETO.md
+README-EN.md
+README.md.old
+publish-to-github.sh
 
-# Credentials e arquivos sensíveis
+# Logs e temporários
+*.log
+logs/
+*.tmp
+*.swp
+
+# Credenciais
 credentials.txt
 *.key
 *.pem
 *.crt
 secrets/
-.env*
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.iml
 
 # Kubernetes
 *.kubeconfig
 kubeconfig*
 
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.swp
-*~
-COMANDOS-RAPIDOS.sh
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.iml
+# Ambiente
+.env*
+.env.local
 
 # Backups
 *.bak
 backup/
 
-# Kind cluster data
-.kind/
-secrets/
-*.key
-*.pem
-credentials.txt
+# Build artifacts
+dist/
+build/
+*.zip
+*.tar.gz
