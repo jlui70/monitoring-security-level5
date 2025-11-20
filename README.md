@@ -145,7 +145,7 @@
 
 <div align="center">
   <img src="docs/architecture.png" width="900" alt="Diagrama de Arquitetura - Monitoring Security Level 5">
-  <p><em>📝 Diagrama Arquitetura Projeto Monitoring Security </em></p>
+  <p><em>📝 Diagrama Projeto Monitoring Security </em></p>
 </div>
 
 ### 🌐 **Portas de Acesso (NodePort)**
