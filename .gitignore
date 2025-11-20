@@ -56,3 +56,5 @@ build/
 *.zip
 *.tar.gz
 update-diagram.sh
+docs/COMO-USAR-DIAGRAMA-DRAWIO.md
+docs/architecture-diagram.drawio
