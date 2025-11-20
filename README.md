@@ -452,7 +452,7 @@ curl -s http://localhost:30900 > /dev/null && echo "✅ Prometheus OK"
 
 ---
 
-## 🔗 **Série Monitoring Security (COMPLETA)**
+## 🔗 **Navegação da Série**
 
 - **[Level 1](https://github.com/jlui70/monitoring-security-level1)** - Baseline (hardcoded secrets)
 - **[Level 2](https://github.com/jlui70/monitoring-security-level2)** - Env vars (`.env` files)
@@ -465,20 +465,6 @@ curl -s http://localhost:30900 > /dev/null && echo "✅ Prometheus OK"
 ## 🤝 **Contribuindo**
 
 Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para detalhes.
-
----
-
-## 🔗 **Navegação da Série**
-
-<table>
-<tr>
-<td align="center"><a href="https://github.com/jlui70/monitoring-security-level1"><b>⬅️ Level 1</b><br/>Baseline</a></td>
-<td align="center"><a href="https://github.com/jlui70/monitoring-security-level2"><b>Level 2</b><br/>Env Vars</a></td>
-<td align="center"><a href="https://github.com/jlui70/monitoring-security-level3"><b>Level 3</b><br/>Vault Foundation</a></td>
-<td align="center"><a href="https://github.com/jlui70/monitoring-security-level4-aws-v2"><b>Level 4</b><br/>AWS Cloud</a></td>
-<td align="center"><a href="https://github.com/jlui70/monitoring-security-level5"><b>Level 5 ➡️</b><br/>K8s + Vault</a></td>
-</tr>
-</table>
 
 ---
 
