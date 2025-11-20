@@ -468,23 +468,70 @@ Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para de
 
 ---
 
-## 📝 **Licença**
+## 🔗 **Navegação da Série**
 
-Este projeto está licenciado sob a MIT License - veja [LICENSE](LICENSE) para detalhes.
-
----
-
-## 🙏 **Agradecimentos**
-
-- **HashiCorp Vault** - Secret management
-- **External Secrets Operator** - Integração Kubernetes
-- **Zabbix** - Plataforma de monitoramento
-- **Prometheus** - Coleta de métricas
-- **Grafana** - Visualização
-- **Kind** - Kubernetes in Docker
+<table>
+<tr>
+<td align="center"><a href="https://github.com/jlui70/monitoring-security-level1"><b>⬅️ Level 1</b><br/>Baseline</a></td>
+<td align="center"><a href="https://github.com/jlui70/monitoring-security-level2"><b>Level 2</b><br/>Env Vars</a></td>
+<td align="center"><a href="https://github.com/jlui70/monitoring-security-level3"><b>Level 3</b><br/>Vault Foundation</a></td>
+<td align="center"><a href="https://github.com/jlui70/monitoring-security-level4-aws-v2"><b>Level 4</b><br/>AWS Cloud</a></td>
+<td align="center"><a href="https://github.com/jlui70/monitoring-security-level5"><b>Level 5 ➡️</b><br/>K8s + Vault</a></td>
+</tr>
+</table>
 
 ---
 
-**⭐ Se este projeto ajudou você, dê uma estrela!**
+## 🏷️ **Tags & Tecnologias**
 
-Construído com ❤️ para a comunidade DevOps Brasil
+### Monitoramento
+![Zabbix](https://img.shields.io/badge/Zabbix-7.0-red?style=flat-square&logo=zabbix)
+![Grafana](https://img.shields.io/badge/Grafana-12.0-orange?style=flat-square&logo=grafana)
+![Prometheus](https://img.shields.io/badge/Prometheus-2.48-orange?style=flat-square&logo=prometheus)
+
+### Secrets Management
+![Vault](https://img.shields.io/badge/HashiCorp-Vault-black?style=flat-square&logo=vault)
+![External Secrets](https://img.shields.io/badge/External-Secrets-purple?style=flat-square)
+![AWS Secrets](https://img.shields.io/badge/AWS-Secrets%20Manager-orange?style=flat-square&logo=amazon-aws)
+
+### Infraestrutura
+![Docker](https://img.shields.io/badge/Docker-Compose-blue?style=flat-square&logo=docker)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.34-blue?style=flat-square&logo=kubernetes)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-purple?style=flat-square&logo=terraform)
+
+### DevOps & Security
+![DevOps](https://img.shields.io/badge/DevOps-Best%20Practices-green?style=flat-square)
+![Security](https://img.shields.io/badge/Security-Evolution-red?style=flat-square&logo=security)
+![GitOps](https://img.shields.io/badge/GitOps-Ready-blue?style=flat-square)
+
+### Banco de Dados
+![MySQL](https://img.shields.io/badge/MySQL-8.3-blue?style=flat-square&logo=mysql)
+
+---
+
+## 📚 **Documentação & Suporte**
+
+- 📖 [Documentação Completa](./docs/)
+- 🐛 [Reportar Issues](https://github.com/jlui70/monitoring-security-level5/issues)
+- 💡 [Discussões](https://github.com/jlui70/monitoring-security-level5/discussions)
+- ⭐ Se este projeto ajudou você, considere dar uma estrela!
+
+---
+
+## 📄 **Licença**
+
+Este projeto está licenciado sob a [MIT License](LICENSE).
+
+**Desenvolvido com ❤️ para a comunidade DevOps/SRE brasileira**
+
+---
+
+<div align="center">
+
+### 🌟 **Monitoring Security Evolution Series** 🌟
+
+**Do básico ao enterprise-grade em 5 níveis progressivos**
+
+[![GitHub](https://img.shields.io/badge/GitHub-jlui70-black?style=flat-square&logo=github)](https://github.com/jlui70)
+
+</div>
