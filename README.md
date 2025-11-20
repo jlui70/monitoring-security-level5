@@ -143,56 +143,96 @@
 
 ## 🏗️ **Arquitetura**
 
+```mermaid
+graph TB
+    subgraph k8s["☸️ Kubernetes Cluster (Kind)"]
+        subgraph eso_ns["📦 Namespace: external-secrets-system"]
+            eso_controller["🎛️ External Secrets Operator<br/>Controller + Webhook + Cert-Controller"]
+        end
+        
+        subgraph mon_ns["📦 Namespace: monitoring"]
+            vault["🔐 HashiCorp Vault<br/>KV v2 Engine<br/>Dev Mode"]
+            secretstore["🔗 SecretStore<br/>vault-backend"]
+            
+            subgraph external_secrets["📝 ExternalSecrets (4x)"]
+                es_mysql["mysql-secret"]
+                es_zabbix["zabbix-secret"]
+                es_grafana["grafana-secret"]
+                es_prometheus["prometheus-secret"]
+            end
+            
+            subgraph k8s_secrets["🔑 Kubernetes Secrets<br/>(Auto-sync a cada 1h)"]
+                secret_mysql["mysql-secret"]
+                secret_zabbix["zabbix-secret"]
+                secret_grafana["grafana-secret"]
+                secret_prometheus["prometheus-secret"]
+            end
+            
+            mysql["🗄️ MySQL 8.3<br/>StatefulSet<br/>PVC: 10GB"]
+            
+            subgraph zabbix_stack["📊 Zabbix Stack"]
+                zabbix_server["Zabbix Server 7.0"]
+                zabbix_web["Zabbix Web"]
+                zabbix_agent["Zabbix Agent2"]
+            end
+            
+            prometheus["📈 Prometheus 2.48<br/>Deployment"]
+            node_exporter["💻 Node Exporter<br/>DaemonSet"]
+            grafana["📊 Grafana 12.0<br/>Deployment"]
+        end
+    end
+    
+    %% Fluxo de Secrets
+    eso_controller -.->|"Monitora"| external_secrets
+    vault -->|"Lê secrets"| secretstore
+    secretstore -->|"Configura fonte"| external_secrets
+    external_secrets -->|"Sincroniza<br/>(refresh 1h)"| k8s_secrets
+    
+    %% Consumo de Secrets
+    secret_mysql -.->|"Env Vars"| mysql
+    secret_zabbix -.->|"Env Vars"| zabbix_server
+    secret_grafana -.->|"Env Vars"| grafana
+    secret_prometheus -.->|"Env Vars"| prometheus
+    
+    %% Conexões entre serviços
+    mysql <-->|"SQL<br/>:3306"| zabbix_server
+    zabbix_server <--> zabbix_web
+    zabbix_server <--> zabbix_agent
+    
+    node_exporter -->|"Métricas<br/>:9100"| prometheus
+    prometheus -->|"Datasource"| grafana
+    zabbix_server -->|"Datasource"| grafana
+    
+    %% Estilos
+    classDef vault fill:#000,stroke:#FFD700,stroke-width:3px,color:#fff
+    classDef eso fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
+    classDef secrets fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef monitoring fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    classDef database fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    
+    class vault vault
+    class eso_controller,secretstore,external_secrets eso
+    class k8s_secrets,secret_mysql,secret_zabbix,secret_grafana,secret_prometheus secrets
+    class prometheus,node_exporter,grafana monitoring
+    class mysql,zabbix_server,zabbix_web,zabbix_agent database
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                  Kubernetes Cluster (Kind)                  │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐ │
-│  │            External Secrets Operator                  │ │
-│  │              (Namespace: external-secrets-system)     │ │
-│  │                                                       │ │
-│  │  ┌─────────────────────────────────────────────┐    │ │
-│  │  │  Controller: Monitora ExternalSecrets       │    │ │
-│  │  │  Webhook: Valida manifests                  │    │ │
-│  │  │  Cert-Controller: Gerencia certificados     │    │ │
-│  │  └─────────────────────────────────────────────┘    │ │
-│  └───────────────────────────────────────────────────────┘ │
-│                           │                                 │
-│  ┌────────────────────────▼──────────────────────────────┐ │
-│  │              Namespace: monitoring                    │ │
-│  │                                                       │ │
-│  │  ┌──────────┐        ┌─────────────────┐            │ │
-│  │  │  Vault   │◄───────┤  SecretStore    │            │ │
-│  │  │ (KV v2)  │        │ (vault-backend) │            │ │
-│  │  └─────┬────┘        └────────┬────────┘            │ │
-│  │        │                      │                      │ │
-│  │        │   ┌──────────────────▼──────────────┐      │ │
-│  │        │   │   4x ExternalSecrets:           │      │ │
-│  │        │   │   • mysql-secret                │      │ │
-│  │        │   │   • zabbix-secret               │      │ │
-│  │        │   │   • grafana-secret              │      │ │
-│  │        │   │   • prometheus-secret           │      │ │
-│  │        │   └──────────────────┬──────────────┘      │ │
-│  │        │                      │                      │ │
-│  │        │             ┌────────▼──────────┐           │ │
-│  │        │             │ Kubernetes Secrets│           │ │
-│  │        │             │ (Auto-sync 1h)    │           │ │
-│  │        │             └────────┬──────────┘           │ │
-│  │        │                      │                      │ │
-│  │  ┌─────▼──────┐    ┌──────────▼───────────┐         │ │
-│  │  │ MySQL 8.3  │◄───┤  Zabbix Server       │         │ │
-│  │  │            │    │  + Web + Agent2      │         │ │
-│  │  └────────────┘    └──────────────────────┘         │ │
-│  │                                                      │ │
-│  │  ┌─────────────┐   ┌──────────────┐   ┌─────────┐  │ │
-│  │  │ Prometheus  │◄──┤ Node Exporter│──►│ Grafana │  │ │
-│  │  └─────────────┘   └──────────────┘   └─────────┘  │ │
-│  │                                                      │ │
-│  │  🌐 NodePorts:                                      │ │
-│  │  • Grafana: 30300 • Zabbix: 30080 • Prometheus:30900│ │
-│  └───────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────┘
-```
+
+### 🌐 **Portas de Acesso (NodePort)**
+
+| Serviço | URL | Porta | Credenciais |
+|---------|-----|-------|-------------|
+| **Grafana** | http://localhost:30300 | 30300 | admin / (exibido no deploy) |
+| **Zabbix** | http://localhost:30080 | 30080 | Admin / zabbix |
+| **Prometheus** | http://localhost:30900 | 30900 | N/A (sem auth) |
+
+### 🔄 **Fluxo de Secrets**
+
+1. **Vault** armazena secrets (KV v2 engine)
+2. **SecretStore** configura conexão com Vault
+3. **ExternalSecrets** (4x) definem quais secrets buscar
+4. **ESO Controller** sincroniza Vault → Kubernetes Secrets
+5. **Pods** consomem secrets como env vars normais do Kubernetes
+6. **Refresh automático** a cada 1 hora (configurável)
 
 ### **Fluxo de Secrets:**
 

@@ -1,0 +1,178 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Monitoring Security Level 5" id="architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Kubernetes Cluster Container -->
+        <mxCell id="k8s-cluster" value="☸️ Kubernetes Cluster (Kind)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1080" height="740" as="geometry" />
+        </mxCell>
+        
+        <!-- External Secrets Namespace -->
+        <mxCell id="eso-namespace" value="📦 Namespace: external-secrets-system" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1" vertex="1" parent="k8s-cluster">
+          <mxGeometry x="20" y="40" width="1040" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="eso-controller" value="🎛️ External Secrets Operator&#xa;Controller + Webhook + Cert-Controller" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6366f1;strokeColor=#4f46e5;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="eso-namespace">
+          <mxGeometry x="380" y="40" width="280" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Monitoring Namespace -->
+        <mxCell id="mon-namespace" value="📦 Namespace: monitoring" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1" vertex="1" parent="k8s-cluster">
+          <mxGeometry x="20" y="180" width="1040" height="540" as="geometry" />
+        </mxCell>
+        
+        <!-- Vault -->
+        <mxCell id="vault" value="🔐 HashiCorp Vault&#xa;KV v2 Engine&#xa;Dev Mode" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#FFD700;strokeWidth=3;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="40" y="40" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- SecretStore -->
+        <mxCell id="secretstore" value="🔗 SecretStore&#xa;vault-backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6366f1;strokeColor=#4f46e5;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="250" y="40" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- ExternalSecrets Group -->
+        <mxCell id="es-group" value="📝 ExternalSecrets (4x)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="460" y="30" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="es-mysql" value="mysql-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6366f1;strokeColor=#4f46e5;fontColor=#ffffff;fontSize=10" vertex="1" parent="es-group">
+          <mxGeometry x="20" y="30" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="es-zabbix" value="zabbix-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6366f1;strokeColor=#4f46e5;fontColor=#ffffff;fontSize=10" vertex="1" parent="es-group">
+          <mxGeometry x="20" y="70" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="es-grafana" value="grafana-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6366f1;strokeColor=#4f46e5;fontColor=#ffffff;fontSize=10" vertex="1" parent="es-group">
+          <mxGeometry x="20" y="110" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="es-prometheus" value="prometheus-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6366f1;strokeColor=#4f46e5;fontColor=#ffffff;fontSize=10" vertex="1" parent="es-group">
+          <mxGeometry x="20" y="140" width="160" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Kubernetes Secrets Group -->
+        <mxCell id="k8s-secrets-group" value="🔑 Kubernetes Secrets&#xa;(Auto-sync 1h)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="720" y="30" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="secret-mysql" value="mysql-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontColor=#ffffff;fontSize=10" vertex="1" parent="k8s-secrets-group">
+          <mxGeometry x="20" y="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="secret-zabbix" value="zabbix-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontColor=#ffffff;fontSize=10" vertex="1" parent="k8s-secrets-group">
+          <mxGeometry x="20" y="75" width="160" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="secret-grafana" value="grafana-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontColor=#ffffff;fontSize=10" vertex="1" parent="k8s-secrets-group">
+          <mxGeometry x="20" y="110" width="160" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="secret-prometheus" value="prometheus-secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontColor=#ffffff;fontSize=10" vertex="1" parent="k8s-secrets-group">
+          <mxGeometry x="20" y="145" width="160" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- MySQL -->
+        <mxCell id="mysql" value="🗄️ MySQL 8.3&#xa;StatefulSet&#xa;PVC: 10GB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="40" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Zabbix Stack -->
+        <mxCell id="zabbix-group" value="📊 Zabbix Stack" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="250" y="250" width="240" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zabbix-server" value="Zabbix Server 7.0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;fontColor=#ffffff;fontSize=10" vertex="1" parent="zabbix-group">
+          <mxGeometry x="20" y="30" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zabbix-web" value="Zabbix Web" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;fontColor=#ffffff;fontSize=10" vertex="1" parent="zabbix-group">
+          <mxGeometry x="20" y="80" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zabbix-agent" value="Zabbix Agent2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;fontColor=#ffffff;fontSize=10" vertex="1" parent="zabbix-group">
+          <mxGeometry x="20" y="130" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Prometheus -->
+        <mxCell id="prometheus" value="📈 Prometheus 2.48&#xa;Deployment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f59e0b;strokeColor=#d97706;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="540" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Node Exporter -->
+        <mxCell id="node-exporter" value="💻 Node Exporter&#xa;DaemonSet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f59e0b;strokeColor=#d97706;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="540" y="390" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Grafana -->
+        <mxCell id="grafana" value="📊 Grafana 12.0&#xa;Deployment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f59e0b;strokeColor=#d97706;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="mon-namespace">
+          <mxGeometry x="760" y="310" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- NodePorts Info -->
+        <mxCell id="nodeports" value="🌐 NodePorts:&#xa;Grafana: 30300 | Zabbix: 30080 | Prometheus: 30900" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=2" vertex="1" parent="mon-namespace">
+          <mxGeometry x="40" y="470" width="880" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows/Connections -->
+        <!-- ESO Controller monitors ExternalSecrets -->
+        <mxCell id="arrow1" value="Monitora" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#6366f1;strokeWidth=2" edge="1" parent="k8s-cluster" source="eso-controller" target="es-group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Vault to SecretStore -->
+        <mxCell id="arrow2" value="Lê secrets" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2" edge="1" parent="k8s-cluster" source="vault" target="secretstore">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- SecretStore to ExternalSecrets -->
+        <mxCell id="arrow3" value="Configura" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6366f1;strokeWidth=2" edge="1" parent="k8s-cluster" source="secretstore" target="es-group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- ExternalSecrets to K8s Secrets -->
+        <mxCell id="arrow4" value="Sincroniza&#xa;(refresh 1h)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=3" edge="1" parent="k8s-cluster" source="es-group" target="k8s-secrets-group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- K8s Secrets to Pods -->
+        <mxCell id="arrow5" value="Env Vars" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#10b981;strokeWidth=2" edge="1" parent="k8s-cluster" source="secret-mysql" target="mysql">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow6" value="Env Vars" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#10b981;strokeWidth=2" edge="1" parent="k8s-cluster" source="secret-zabbix" target="zabbix-server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow7" value="Env Vars" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#10b981;strokeWidth=2" edge="1" parent="k8s-cluster" source="secret-grafana" target="grafana">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow8" value="Env Vars" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#10b981;strokeWidth=2" edge="1" parent="k8s-cluster" source="secret-prometheus" target="prometheus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Service connections -->
+        <mxCell id="arrow9" value="SQL :3306" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2" edge="1" parent="k8s-cluster" source="mysql" target="zabbix-server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow10" value="Métricas :9100" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=2" edge="1" parent="k8s-cluster" source="node-exporter" target="prometheus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow11" value="Datasource" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=2" edge="1" parent="k8s-cluster" source="prometheus" target="grafana">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow12" value="Datasource" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2" edge="1" parent="k8s-cluster" source="zabbix-server" target="grafana">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
