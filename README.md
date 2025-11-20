@@ -1,16 +1,13 @@
-# 🔐 Monitoring Security Evolution - Level 5
+# 🔐 Monitoring Security Evolution - Nível 5: Kubernetes + Vault
+## Stack de Monitoramento com External Secrets Operator
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.34-326CE5?logo=kubernetes)
-![Vault](https://img.shields.io/badge/Vault-Dev%20Mode-000000?logo=vault)
-![Zabbix](https://img.shields.io/badge/Zabbix-7.0-D40000?logo=zabbix)
-![Prometheus](https://img.shields.io/badge/Prometheus-Latest-E6522C?logo=prometheus)
-![Grafana](https://img.shields.io/badge/Grafana-Latest-F46800?logo=grafana)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Security Level](https://img.shields.io/badge/Security%20Level-5%20Kubernetes%20%2B%20Vault-brightgreen)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.34-blue)
+![Vault](https://img.shields.io/badge/HashiCorp-Vault-black)
+![External Secrets](https://img.shields.io/badge/External%20Secrets-Operator-purple)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-green)
 
 **Stack completa de monitoramento em Kubernetes** com HashiCorp Vault e External Secrets Operator para gerenciamento automático de credenciais.
-
-> 🎯 **Posição na Série:** Este é o **Level 5 (FINAL)** de 5 na evolução de segurança  
-> 🏆 **Conquista Máxima:** Consumo direto do Vault via External Secrets Operator - **ZERO arquivos .env**!
 
 ---
 
