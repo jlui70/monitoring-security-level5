@@ -148,24 +148,7 @@
   <p><em>📝 Diagrama editável: <a href="docs/architecture-diagram.drawio">architecture-diagram.drawio</a> (abra no <a href="https://app.diagrams.net">draw.io</a>)</em></p>
 </div>
 
-### 🌐 **Portas de Acesso (NodePort)**
-
-| Serviço | URL | Porta | Credenciais |
-|---------|-----|-------|-------------|
-| **Grafana** | http://localhost:30300 | 30300 | admin / (exibido no deploy) |
-| **Zabbix** | http://localhost:30080 | 30080 | Admin / zabbix |
-| **Prometheus** | http://localhost:30900 | 30900 | N/A (sem auth) |
-
-### 🔄 **Fluxo de Secrets**
-
-1. **Vault** armazena secrets (KV v2 engine)
-2. **SecretStore** configura conexão com Vault
-3. **ExternalSecrets** (4x) definem quais secrets buscar
-4. **ESO Controller** sincroniza Vault → Kubernetes Secrets
-5. **Pods** consomem secrets como env vars normais do Kubernetes
-6. **Refresh automático** a cada 1 hora (configurável)
-
-### **Fluxo de Secrets:**
+### 🔄 **Fluxo de Secrets:**
 
 1. **Vault** armazena secrets no KV v2 engine
 2. **vault-init Job** cria secrets iniciais no Vault
@@ -207,20 +190,22 @@ cd monitoring-security-level5
 - ✅ Deploy Vault + inicialização de secrets
 - ✅ Configura SecretStore e ExternalSecrets
 - ✅ **Reinicia ESO** (fix crítico para sync funcionar)
-- ✅ Deploy MySQL + Zabbix + Prometheus + Grafana
+- ✅ Deploy MySQL + Zabbix + Prometheus + Grafana + Node Exporter
 - ✅ Configura templates Zabbix e dashboards Grafana
 
 ---
 
 ## 🌐 **Acessar Aplicações**
 
-### **URLs de Acesso:**
+### **URLs de Acesso (NodePort):**
 
 | Aplicação | URL | Usuário Padrão |
 |-----------|-----|----------------|
 | **Grafana** | http://localhost:30300 | admin |
 | **Zabbix** | http://localhost:30080 | Admin |
 | **Prometheus** | http://localhost:30900 | - |
+
+> 💡 **NodePort** permite acesso direto sem port-forward no Kind (localhost:303xx)
 
 ### **Ver Credenciais:**
 
@@ -239,6 +224,42 @@ kubectl get secret zabbix-secret -n monitoring -o jsonpath='{.data.admin-passwor
 
 ---
 
+## ☁️ **Multi-Cloud Ready**
+
+Este projeto **roda em qualquer Kubernetes**! A instalação acima usa **Kind (local)**, mas você pode deployar em:
+
+### **Clouds Suportadas:**
+- ✅ **AWS EKS** - Amazon Elastic Kubernetes Service
+- ✅ **GCP GKE** - Google Kubernetes Engine  
+- ✅ **Azure AKS** - Azure Kubernetes Service
+- ✅ **On-Premise** - Qualquer cluster Kubernetes
+
+### **Deploy na AWS EKS:**
+
+Para validar em ambiente cloud, siga o guia específico:
+
+📘 **[Deploy AWS EKS - Guia Completo](docs/AWS-DEPLOYMENT.md)**
+
+**Resumo do deploy AWS:**
+```bash
+# Deploy completo em AWS EKS (25-30 min)
+./scripts/deploy-aws.sh
+
+# Cleanup (deleta tudo)
+./scripts/cleanup-aws.sh
+```
+
+**Diferenças AWS vs Kind:**
+- ✅ **Mesma stack** (Vault, ESO, MySQL, Zabbix, Grafana, Prometheus)
+- ✅ **Mesma automação** (scripts de configuração idênticos)
+- ✅ **Storage**: EBS gp3 (AWS) vs local-path (Kind)
+- ✅ **Acesso**: Port-forward (AWS) vs NodePort direto (Kind)
+- ✅ **Custo**: ~$0.30/hora (~$216/mês) vs gratuito (local)
+
+> 💡 **Multi-cloud = Zero lock-in** - Migre entre clouds sem reescrever código!
+
+---
+
 ## 📁 **Estrutura do Projeto**
 
 ```
@@ -248,12 +269,16 @@ monitoring-security-level5/
 ├── kind-config.yaml            # Configuração do cluster Kind
 │
 ├── scripts/                     # Scripts de automação
-│   ├── cleanup.sh              # Limpeza completa
-│   ├── deploy.sh               # Deploy da infraestrutura
+│   ├── cleanup.sh              # Limpeza completa (Kind)
+│   ├── deploy.sh               # Deploy da infraestrutura (Kind)
 │   ├── check-environment.sh    # Validação de pré-requisitos
-│   ├── configure-zabbix.sh     # Configuração do Zabbix
-│   ├── configure-grafana.sh    # Configuração do Grafana
-│   └── show-credentials.sh     # Exibir credenciais
+│   ├── configure-zabbix.sh     # Configuração do Zabbix (Kind)
+│   ├── configure-grafana.sh    # Configuração do Grafana (Kind)
+│   ├── show-credentials.sh     # Exibir credenciais
+│   ├── deploy-aws.sh           # Deploy completo AWS EKS
+│   ├── cleanup-aws.sh          # Cleanup AWS EKS
+│   ├── configure-zabbix-aws.sh # Configuração Zabbix (AWS)
+│   └── configure-grafana-aws.sh # Configuração Grafana (AWS)
 │
 ├── kubernetes/                  # Manifestos Kubernetes (ordem numérica)
 │   ├── 01-namespace/           # Namespace monitoring
@@ -270,6 +295,7 @@ monitoring-security-level5/
 │   └── dashboards/             # Dashboards JSON
 │
 └── docs/                        # Documentação
+    ├── AWS-DEPLOYMENT.md        # 📘 Deploy na AWS EKS
     ├── guides/                  # Guias de uso
     ├── troubleshooting/         # Solução de problemas
     └── INDEX.md                 # Índice da documentação

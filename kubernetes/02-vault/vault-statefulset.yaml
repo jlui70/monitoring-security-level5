@@ -70,6 +70,7 @@ spec:
       name: vault-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ebs-sc
       resources:
         requests:
           storage: 1Gi

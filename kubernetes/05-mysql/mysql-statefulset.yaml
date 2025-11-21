@@ -66,6 +66,7 @@ spec:
       name: mysql-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ebs-sc
       resources:
         requests:
           storage: 10Gi
