@@ -145,7 +145,7 @@
 
 <div align="center">
   <img src="docs/architecture.png" width="900" alt="Diagrama de Arquitetura - Monitoring Security Level 5">
-  <p><em>📝 Diagrama editável: <a href="docs/architecture-diagram.drawio">architecture-diagram.drawio</a> (abra no <a href="https://app.diagrams.net">draw.io</a>)</em></p>
+  <p><em>📝 Diagrama Projeto Monitoring Security </em></p>
 </div>
 
 ### 🔄 **Fluxo de Secrets:**
