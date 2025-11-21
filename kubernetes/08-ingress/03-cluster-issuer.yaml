@@ -1,0 +1,73 @@
+# ClusterIssuer para Let's Encrypt
+# Emite certificados SSL/TLS gratuitos e confiáveis
+# IMPORTANTE: Substitua 'seu-email@exemplo.com' pelo seu email real
+
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+  labels:
+    app: cert-manager
+spec:
+  acme:
+    # Servidor de staging (para testes - não confiável em browsers)
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    
+    # ⚠️ SUBSTITUIR pelo seu email real
+    email: seu-email@exemplo.com
+    
+    # Secret para armazenar a chave privada da conta ACME
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    
+    # Validação HTTP-01 (via Ingress)
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  labels:
+    app: cert-manager
+spec:
+  acme:
+    # Servidor de produção (certificados confiáveis)
+    server: https://acme-v02.api.letsencrypt.org/directory
+    
+    # ⚠️ SUBSTITUIR pelo seu email real
+    email: seu-email@exemplo.com
+    
+    # Secret para armazenar a chave privada da conta ACME
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    
+    # Validação HTTP-01 (via Ingress)
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+
+---
+# Instruções de uso:
+#
+# 1. STAGING (para testes):
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+#
+# 2. PRODUCTION (depois que funcionar em staging):
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#
+# IMPORTANTE:
+# - Let's Encrypt tem rate limits em produção (50 certs/domínio/semana)
+# - Use STAGING primeiro para testar
+# - Depois mude para PROD quando confirmar que funciona
+#
+# Para verificar status:
+# kubectl get clusterissuer
+# kubectl describe clusterissuer letsencrypt-prod

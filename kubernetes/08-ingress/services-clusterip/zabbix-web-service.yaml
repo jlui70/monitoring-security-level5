@@ -1,0 +1,22 @@
+# Zabbix Web Service para uso com Ingress
+# Tipo: ClusterIP (ao invés de NodePort)
+# O Ingress Controller roteia tráfego externo para este service interno
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-web
+  namespace: monitoring
+  labels:
+    app: zabbix
+    component: web
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: zabbix
+    component: web

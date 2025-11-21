@@ -238,7 +238,9 @@ Este projeto **roda em qualquer Kubernetes**! A instalação acima usa **Kind (l
 
 Para validar em ambiente cloud, siga o guia específico:
 
-📘 **[Deploy AWS EKS - Guia Completo](docs/AWS-DEPLOYMENT.md)**
+### 📘 **Opção 2: Deploy AWS EKS (Port-forward)**
+
+📖 **[Guia Completo - Deploy AWS](docs/AWS-DEPLOYMENT.md)**
 
 **Resumo do deploy AWS:**
 ```bash
@@ -249,12 +251,70 @@ Para validar em ambiente cloud, siga o guia específico:
 ./scripts/cleanup-aws.sh
 ```
 
-**Diferenças AWS vs Kind:**
-- ✅ **Mesma stack** (Vault, ESO, MySQL, Zabbix, Grafana, Prometheus)
-- ✅ **Mesma automação** (scripts de configuração idênticos)
-- ✅ **Storage**: EBS gp3 (AWS) vs local-path (Kind)
-- ✅ **Acesso**: Port-forward (AWS) vs NodePort direto (Kind)
-- ✅ **Custo**: ~$0.30/hora (~$216/mês) vs gratuito (local)
+**Características:**
+- ✅ Mesma stack (Vault, ESO, MySQL, Zabbix, Grafana, Prometheus)
+- ✅ Mesma automação (scripts idênticos ao Kind)
+- ✅ Storage: EBS gp3 (persistente)
+- ✅ Acesso: Port-forward manual
+- 💰 Custo: ~$0.30/hora (~$216/mês)
+
+---
+
+### 🌐 **Opção 3: Deploy AWS EKS + Ingress + HTTPS (Domínio Público)**
+
+📖 **[Guia Completo - Ingress + HTTPS](docs/INGRESS-HTTPS-SETUP.md)**
+
+**Versão avançada com acesso público via HTTPS:**
+```bash
+# Alternar para branch com Ingress
+git checkout feature/ingress-https
+
+# Editar domínio no script
+nano scripts/deploy-aws-ingress.sh
+# Alterar: DOMAIN="seu-dominio.com.br"
+
+# Deploy completo (30-40 min)
+./scripts/deploy-aws-ingress.sh
+
+# Configurar DNS no HostGator (4 CNAMEs)
+# Aguardar propagação (5-30 min)
+
+# Acessar via HTTPS
+# https://grafana.seu-dominio.com.br
+# https://zabbix.seu-dominio.com.br
+# https://prometheus.seu-dominio.com.br
+```
+
+**Características adicionais:**
+- ✅ **NGINX Ingress Controller** - Roteamento HTTP/HTTPS inteligente
+- ✅ **Cert-Manager** - Certificados SSL/TLS gratuitos (Let's Encrypt)
+- ✅ **Domínio público** - Acesso via subdomínios personalizados
+- ✅ **HTTPS automático** - Renovação de certificados a cada 60 dias
+- ✅ **1 Load Balancer** - Economia vs múltiplos LBs
+- 💰 Custo: ~$0.46/hora (~$330/mês)
+
+**Ideal para:**
+- ✅ Apresentações profissionais
+- ✅ Demos para clientes
+- ✅ Portfolio técnico
+- ✅ Validação de conceitos
+
+---
+
+### 🔄 **Comparativo: 3 Opções de Deploy**
+
+| Aspecto | Kind (Local) | AWS EKS (Port-forward) | AWS EKS + Ingress |
+|---------|--------------|------------------------|-------------------|
+| **Ambiente** | Local (Docker) | AWS Cloud | AWS Cloud |
+| **Acesso** | NodePort (localhost) | Port-forward manual | **HTTPS público** ✅ |
+| **Domínio** | Não | Não | **Sim (personalizado)** ✅ |
+| **Certificado SSL** | Não | Não | **Let's Encrypt (gratuito)** ✅ |
+| **Load Balancer** | Não | Não | **Sim (NLB)** ✅ |
+| **DNS necessário** | Não | Não | **Sim (ex: HostGator)** |
+| **Setup** | 15-20 min | 25-30 min | 30-40 min |
+| **Custo/mês** | $0 (gratuito) | ~$216 | ~$330 |
+| **Branch Git** | `main` | `main` | `feature/ingress-https` |
+| **Apresentação** | Demo técnica local | Demo técnica cloud | **Demo profissional** ✅ |
 
 > 💡 **Multi-cloud = Zero lock-in** - Migre entre clouds sem reescrever código!
 
@@ -275,10 +335,11 @@ monitoring-security-level5/
 │   ├── configure-zabbix.sh     # Configuração do Zabbix (Kind)
 │   ├── configure-grafana.sh    # Configuração do Grafana (Kind)
 │   ├── show-credentials.sh     # Exibir credenciais
-│   ├── deploy-aws.sh           # Deploy completo AWS EKS
+│   ├── deploy-aws.sh           # Deploy completo AWS EKS (port-forward)
 │   ├── cleanup-aws.sh          # Cleanup AWS EKS
 │   ├── configure-zabbix-aws.sh # Configuração Zabbix (AWS)
-│   └── configure-grafana-aws.sh # Configuração Grafana (AWS)
+│   ├── configure-grafana-aws.sh # Configuração Grafana (AWS)
+│   └── deploy-aws-ingress.sh   # Deploy AWS EKS + Ingress + HTTPS (branch: feature/ingress-https)
 │
 ├── kubernetes/                  # Manifestos Kubernetes (ordem numérica)
 │   ├── 01-namespace/           # Namespace monitoring
@@ -289,13 +350,20 @@ monitoring-security-level5/
 │   ├── 06-zabbix/              # Zabbix server, web, agent2 + password Job
 │   ├── 07-prometheus/          # Prometheus + RBAC
 │   ├── 08-grafana/             # Grafana + datasources ConfigMap
+│   ├── 08-ingress/             # NGINX Ingress + Cert-Manager (branch: feature/ingress-https)
+│   │   ├── 01-ingress-controller.yaml
+│   │   ├── 02-cert-manager.yaml
+│   │   ├── 03-cluster-issuer.yaml
+│   │   ├── 04-monitoring-ingress.yaml
+│   │   └── services-clusterip/
 │   └── 09-node-exporter/       # Node Exporter DaemonSet
 │
 ├── grafana/                     # Assets do Grafana
 │   └── dashboards/             # Dashboards JSON
 │
 └── docs/                        # Documentação
-    ├── AWS-DEPLOYMENT.md        # 📘 Deploy na AWS EKS
+    ├── AWS-DEPLOYMENT.md        # 📘 Deploy AWS EKS (port-forward)
+    ├── INGRESS-HTTPS-SETUP.md   # 🌐 Deploy AWS EKS + Ingress + HTTPS
     ├── guides/                  # Guias de uso
     ├── troubleshooting/         # Solução de problemas
     └── INDEX.md                 # Índice da documentação
