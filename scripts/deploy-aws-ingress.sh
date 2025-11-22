@@ -117,11 +117,24 @@ eksctl create iamserviceaccount \
   --approve \
   --override-existing-serviceaccounts
 
-# Aguardar role ser criado
-sleep 5
+echo ""
+echo "⏱️  Aguardando IAM role ser criado (até 60s)..."
 
-# Obter ARN do role criado
-ROLE_ARN=$(aws iam list-roles --query "Roles[?contains(RoleName, 'eksctl-${CLUSTER_NAME}-addon-iamserviceaccount-kube-system-ebs-csi')].Arn" --output text)
+# Aguardar role ser criado com retry
+for i in {1..12}; do
+  ROLE_ARN=$(aws iam list-roles --query "Roles[?contains(RoleName, 'eksctl-${CLUSTER_NAME}-addon-iamserviceaccount-kube-system-ebs-csi')].Arn" --output text 2>/dev/null)
+  if [ -n "$ROLE_ARN" ]; then
+    echo "✅ IAM role encontrado: $ROLE_ARN"
+    break
+  fi
+  echo "   Tentativa $i/12... aguardando 5s"
+  sleep 5
+done
+
+if [ -z "$ROLE_ARN" ]; then
+  echo "❌ Erro: IAM role não foi criado"
+  exit 1
+fi
 
 eksctl create addon \
   --name aws-ebs-csi-driver \
