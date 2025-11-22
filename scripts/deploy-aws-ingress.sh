@@ -193,13 +193,16 @@ helm upgrade --install external-secrets \
   --create-namespace \
   --wait
 
+echo "⏱️  Aguardando webhooks ficarem prontos (60s)..."
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=external-secrets-webhook -n external-secrets-system --timeout=120s 2>/dev/null || sleep 60
+
 kubectl apply -f ../kubernetes/03-external-secrets/
 
 echo "⏱️  Aguardando ExternalSecrets sincronizar (30s)..."
 sleep 30
 
 # Verificar se há erros de sincronização
-if kubectl get externalsecrets -n monitoring | grep -q "SecretSyncedError"; then
+if kubectl get externalsecrets -n monitoring 2>/dev/null | grep -q "SecretSyncedError"; then
     echo "⚠️  ExternalSecrets com erro, reiniciando ESO..."
     kubectl delete pod -n external-secrets-system -l app.kubernetes.io/name=external-secrets
     sleep 30
@@ -221,8 +224,9 @@ echo "⏱️  ETAPA 9/11: Deploy Zabbix + Prometheus..."
 kubectl apply -f ../kubernetes/06-zabbix/
 kubectl apply -f ../kubernetes/07-prometheus/
 
-echo "⏱️  Aguardando Zabbix e Prometheus ficarem prontos (90s)..."
-sleep 90
+echo "⏱️  Aguardando Zabbix e Prometheus ficarem prontos (120s)..."
+echo "   (Zabbix pode reiniciar algumas vezes, é normal)"
+sleep 120
 
 echo "✅ Zabbix e Prometheus prontos!"
 echo ""
@@ -266,12 +270,20 @@ echo "⏱️  ETAPA 11/11: Deploy Grafana e configuração final..."
 kubectl apply -f ../kubernetes/08-grafana/
 kubectl apply -f ../kubernetes/09-node-exporter/
 
-echo "⏱️  Aguardando Grafana e Node Exporter ficarem prontos (60s)..."
-sleep 60
+echo "⏱️  Aguardando Grafana e Node Exporter ficarem prontos (90s)..."
+sleep 90
+
+# Verificar se Zabbix está pronto antes de configurar
+echo "⏱️  Verificando se Zabbix está pronto..."
+kubectl wait --for=condition=ready pod -l app=zabbix-web -n monitoring --timeout=60s 2>/dev/null || echo "   ⚠️  Zabbix web ainda não está pronto, mas continuando..."
 
 # Configurar Zabbix
 echo "🔧 Configurando Zabbix..."
-../scripts/configure-zabbix-aws.sh
+../scripts/configure-zabbix-aws.sh || echo "   ⚠️  Configuração do Zabbix falhou, você pode executar manualmente depois"
+
+# Verificar se Grafana está pronto antes de configurar
+echo "⏱️  Verificando se Grafana está pronto..."
+kubectl wait --for=condition=ready pod -l app=grafana -n monitoring --timeout=60s 2>/dev/null || echo "   ⚠️  Grafana ainda não está pronto, mas continuando..."
 
 # Configurar Grafana
 echo "🔧 Configurando Grafana..."
