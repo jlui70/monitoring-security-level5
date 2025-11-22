@@ -1,0 +1,10 @@
+# Cert-Manager Installation
+# Use a versão oficial do cert-manager para garantir todos os webhooks e CRDs
+
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+# Aguardar pods ficarem prontos
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=120s
+
+# Aplicar ClusterIssuers personalizados
+kubectl apply -f 03-cluster-issuer.yaml

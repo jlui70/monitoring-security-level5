@@ -1,0 +1,159 @@
+# Ingress para roteamento do Monitoring Stack
+# Roteia tráfego HTTP/HTTPS por subdomínio para cada aplicação
+# IMPORTANTE: Substitua 'devopsproject.com.br' pelo seu domínio real
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: monitoring
+  annotations:
+    # Usar NGINX Ingress Controller
+    kubernetes.io/ingress.class: nginx
+    
+    # Cert-Manager: emitir certificado automaticamente
+    # Use "letsencrypt-staging" primeiro para testar
+    # Depois mude para "letsencrypt-prod" quando funcionar
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    
+    # Configurações NGINX
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # Timeouts maiores para Zabbix/Grafana
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    
+    # Buffer sizes
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "50m"
+
+spec:
+  # Certificado TLS (gerado automaticamente pelo cert-manager)
+  tls:
+    - hosts:
+        - grafana.devopsproject.com.br
+        - zabbix.devopsproject.com.br
+        - prometheus.devopsproject.com.br
+      secretName: monitoring-tls-cert
+  
+  # Regras de roteamento
+  rules:
+    # ========================================
+    # GRAFANA
+    # ========================================
+    - host: grafana.devopsproject.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+    
+    # ========================================
+    # ZABBIX
+    # ========================================
+    - host: zabbix.devopsproject.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zabbix-web
+                port:
+                  number: 8080
+    
+    # ========================================
+    # PROMETHEUS
+    # ========================================
+    - host: prometheus.devopsproject.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090
+
+---
+# Ingress adicional para acesso via subdomínio raiz (opcional)
+# Redireciona eks.devopsproject.com.br → grafana.devopsproject.com.br
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-root-redirect
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    
+    # Redirecionar para Grafana (dashboard principal)
+    nginx.ingress.kubernetes.io/permanent-redirect: "https://grafana.devopsproject.com.br"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+spec:
+  tls:
+    - hosts:
+        - eks.devopsproject.com.br
+      secretName: monitoring-root-tls-cert
+  
+  rules:
+    - host: eks.devopsproject.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+
+---
+# Instruções de configuração DNS (HostGator):
+#
+# 1. Obter endereço do Load Balancer:
+#    kubectl get svc -n ingress-nginx ingress-nginx-controller
+#    
+#    Exemplo de output:
+#    NAME                       TYPE           EXTERNAL-IP
+#    ingress-nginx-controller   LoadBalancer   k8s-ingress-xxxxx.us-east-1.elb.amazonaws.com
+#
+# 2. Criar registros CNAME no HostGator:
+#    
+#    Nome                          Tipo    Valor
+#    -------------------------------------------------------------------
+#    grafana.devopsproject.com.br    CNAME   k8s-ingress-xxxxx.us-east-1.elb.amazonaws.com
+#    zabbix.devopsproject.com.br     CNAME   k8s-ingress-xxxxx.us-east-1.elb.amazonaws.com
+#    prometheus.devopsproject.com.br CNAME   k8s-ingress-xxxxx.us-east-1.elb.amazonaws.com
+#    eks.devopsproject.com.br        CNAME   k8s-ingress-xxxxx.us-east-1.elb.amazonaws.com
+#
+# 3. Aguardar propagação DNS (5-30 minutos):
+#    dig grafana.devopsproject.com.br
+#    nslookup grafana.devopsproject.com.br
+#
+# 4. Acessar aplicações via HTTPS:
+#    https://grafana.devopsproject.com.br
+#    https://zabbix.devopsproject.com.br
+#    https://prometheus.devopsproject.com.br
+#    https://eks.devopsproject.com.br (redireciona para Grafana)
+#
+# 5. Verificar certificado SSL:
+#    kubectl get certificate -n monitoring
+#    kubectl describe certificate monitoring-tls-cert -n monitoring
+#
+# Troubleshooting:
+# - Se certificado não for emitido: verificar logs do cert-manager
+#   kubectl logs -n cert-manager deploy/cert-manager
+# - Se DNS não resolver: verificar propagação
+#   dig @8.8.8.8 grafana.devopsproject.com.br
+# - Se Ingress não rotear: verificar logs do NGINX
+#   kubectl logs -n ingress-nginx deploy/ingress-nginx-controller
