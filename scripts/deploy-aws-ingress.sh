@@ -121,8 +121,9 @@ echo ""
 echo "⏱️  Aguardando IAM role ser criado (até 60s)..."
 
 # Aguardar role ser criado com retry
+# Nota: eksctl trunca nomes longos, então buscamos por 'addon-iamse' ao invés do nome completo
 for i in {1..12}; do
-  ROLE_ARN=$(aws iam list-roles --query "Roles[?contains(RoleName, 'eksctl-${CLUSTER_NAME}-addon-iamserviceaccount-kube-system-ebs-csi')].Arn" --output text 2>/dev/null)
+  ROLE_ARN=$(aws iam list-roles --query "Roles[?contains(RoleName, 'eksctl-${CLUSTER_NAME}-addon-iamse-Role1')].Arn" --output text 2>/dev/null)
   if [ -n "$ROLE_ARN" ]; then
     echo "✅ IAM role encontrado: $ROLE_ARN"
     break
