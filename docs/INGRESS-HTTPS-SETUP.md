@@ -374,7 +374,7 @@ Senha: (obter do Vault)
 
 kubectl exec -n monitoring vault-0 -- vault kv get secret/grafana
 # Ou diretamente do Kubernetes Secret:
-kubectl get secret -n monitoring grafana-credentials -o jsonpath='{.data.admin-password}' | base64 -d
+kubectl get secret -n monitoring grafana-secret -o jsonpath='{.data.admin-password}' | base64 -d
 echo
 
 # ZABBIX
@@ -383,7 +383,7 @@ Senha: (obter do Vault)
 
 kubectl exec -n monitoring vault-0 -- vault kv get secret/zabbix
 # Ou diretamente do Kubernetes Secret:
-kubectl get secret -n monitoring zabbix-credentials -o jsonpath='{.data.admin-password}' | base64 -d
+kubectl get secret -n monitoring zabbix-secret -o jsonpath='{.data.admin-password}' | base64 -d
 echo
 ```
 

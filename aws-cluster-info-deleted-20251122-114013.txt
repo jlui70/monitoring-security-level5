@@ -1,0 +1,4 @@
+CLUSTER_NAME=monitoring-security-level5
+REGION=us-east-1
+DOMAIN=devopsproject.com.br
+CREATED_AT=2025-11-22 10:50:19
