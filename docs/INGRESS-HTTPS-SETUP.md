@@ -3,14 +3,15 @@
 ## 📋 Índice
 
 1. [Visão Geral](#visão-geral)
-2. [Pré-requisitos](#pré-requisitos)
-3. [Arquitetura](#arquitetura)
-4. [Deploy Automático](#deploy-automático)
-5. [Configuração DNS](#configuração-dns)
-6. [Verificação](#verificação)
-7. [Troubleshooting](#troubleshooting)
-8. [Custos](#custos)
-9. [Cleanup](#cleanup)
+2. [⚠️ CONFIGURAÇÃO OBRIGATÓRIA](#️-configuração-obrigatória)
+3. [Pré-requisitos](#pré-requisitos)
+4. [Arquitetura](#arquitetura)
+5. [Deploy Automático](#deploy-automático)
+6. [Configuração DNS](#configuração-dns)
+7. [Verificação](#verificação)
+8. [Troubleshooting](#troubleshooting)
+9. [Custos](#custos)
+10. [Cleanup](#cleanup)
 
 ---
 
@@ -34,6 +35,50 @@ Esta é uma versão **avançada** do projeto Monitoring Security Level 5 que adi
 | **DNS necessário** | Não | Sim (HostGator) |
 | **Custo/mês** | ~$216 | ~$330 |
 | **Apresentação** | Demo local/técnica | Demo profissional |
+
+---
+
+## ⚠️ CONFIGURAÇÃO OBRIGATÓRIA
+
+### 🔴 IMPORTANTE: Antes de executar o deploy
+
+**Você DEVE editar 1 arquivo** para configurar seu próprio domínio e email:
+
+#### Arquivo: `scripts/deploy-aws-ingress.sh`
+
+```bash
+# Abrir arquivo
+nano scripts/deploy-aws-ingress.sh
+
+# Linhas 13-14: Alterar valores
+DOMAIN="SEU-DOMINIO.com.br"          # ← Substituir pelo seu domínio
+EMAIL="seu-email@exemplo.com"        # ← Substituir pelo seu email
+```
+
+**Exemplo real:**
+```bash
+DOMAIN="devopsproject.com.br"
+EMAIL="luiz7030@gmail.com"
+```
+
+### 📝 O que acontece se NÃO alterar?
+
+| Item | Sem Alteração | Após Configurar |
+|------|---------------|-----------------|
+| **Domínio** | Script para e pede confirmação | Deploy continua automático |
+| **Email** | Notificações Let's Encrypt vão para email errado | Você recebe avisos de renovação |
+| **DNS** | Você terá que mapear o domínio `devopsproject.com.br` (não vai funcionar) | Seu domínio funciona |
+| **Certificados SSL** | Não serão emitidos | Emitidos automaticamente |
+
+### ✅ Checklist pré-deploy
+
+Antes de executar `./scripts/deploy-aws-ingress.sh`, confirme:
+
+- [ ] Editei `scripts/deploy-aws-ingress.sh` com MEU domínio
+- [ ] Editei `scripts/deploy-aws-ingress.sh` com MEU email
+- [ ] Tenho acesso ao painel DNS do meu domínio (HostGator/GoDaddy/etc)
+- [ ] AWS CLI configurado (`aws configure`)
+- [ ] Conta AWS com permissões para criar EKS cluster
 
 ---
 

@@ -224,80 +224,205 @@ kubectl get secret zabbix-secret -n monitoring -o jsonpath='{.data.admin-passwor
 
 ---
 
-## ☁️ **Multi-Cloud Ready**
+## 🚀 **Quick Start - Escolha seu Cenário**
 
-Este projeto **roda em qualquer Kubernetes**! A instalação acima usa **Kind (local)**, mas você pode deployar em:
+Este projeto oferece **3 formas de deployment**. Escolha conforme sua necessidade:
 
-### **Clouds Suportadas:**
-- ✅ **AWS EKS** - Amazon Elastic Kubernetes Service
-- ✅ **GCP GKE** - Google Kubernetes Engine  
-- ✅ **Azure AKS** - Azure Kubernetes Service
-- ✅ **On-Premise** - Qualquer cluster Kubernetes
+### 📊 **Comparação das Opções**
 
-### **Deploy na AWS EKS:**
+| Aspecto | **Opção 1: Kind (Local)** | **Opção 2: AWS Básico** | **Opção 3: AWS + Ingress** |
+|---------|---------------------------|-------------------------|----------------------------|
+| **Ambiente** | Local (Docker Desktop) | AWS EKS | AWS EKS |
+| **Acesso** | NodePort (localhost:303xx) | Port-forward manual | **HTTPS público** ✅ |
+| **Domínio** | Não precisa | Não precisa | **Necessário** (HostGator/GoDaddy) |
+| **Certificado SSL** | Não | Não | **Sim (Let's Encrypt)** ✅ |
+| **Load Balancer** | Não | Não | **Sim (NLB)** ✅ |
+| **Configuração** | Zero | Mínima | **Editar domínio/email** |
+| **Custo** | $0 | ~$216/mês | ~$330/mês |
+| **Tempo Deploy** | 5-10 min | 25-30 min | 30-40 min |
+| **Ideal para** | Testes locais, aprendizado | Validação cloud básica | **Apresentações, demos profissionais** ✅ |
+| **Branch Git** | `main` | `main` | `feature/ingress-https` |
 
-Para validar em ambiente cloud, siga o guia específico:
+---
 
-### 📘 **Opção 2: Deploy AWS EKS (Port-forward)**
+## 🎯 **Opção 1: Deploy Local com Kind (Recomendado para Iniciantes)**
 
-📖 **[Guia Completo - Deploy AWS](docs/AWS-DEPLOYMENT.md)**
+**✅ Sem custos • ✅ Sem configuração AWS • ✅ Rápido (5-10 min)**
 
-**Resumo do deploy AWS:**
+### 📖 Guia Completo
+- **[SETUP-LOCAL.md](docs/SETUP-LOCAL.md)** - Instruções detalhadas
+
+### ⚡ Quick Start
+
 ```bash
-# Deploy completo em AWS EKS (25-30 min)
+# 1. Clonar repositório
+git clone https://github.com/jlui70/monitoring-security-level5.git
+cd monitoring-security-level5
+
+# 2. Deploy completo (automático)
+./setup.sh
+
+# 3. Aguardar (5-10 min) e acessar:
+# - Grafana:    http://localhost:30300
+# - Zabbix:     http://localhost:30080  
+# - Prometheus: http://localhost:30900
+
+# 4. Ver credenciais
+./scripts/show-credentials.sh
+```
+
+**Características:**
+- ✅ Cluster Kubernetes local (Kind)
+- ✅ Vault + External Secrets Operator
+- ✅ MySQL, Zabbix, Grafana, Prometheus, Node Exporter
+- ✅ Acesso via NodePort (localhost)
+- ✅ Zero configuração AWS
+- ✅ Custo: $0
+
+---
+
+## ☁️ **Opção 2: Deploy AWS EKS Básico (Port-forward)**
+
+**✅ Cluster real na nuvem • ✅ Mesma stack do local • ⚠️ Acesso via port-forward**
+
+### 📖 Guia Completo
+- **[AWS-DEPLOYMENT.md](docs/AWS-DEPLOYMENT.md)** - Instruções detalhadas
+
+### ⚡ Quick Start
+
+```bash
+# Pré-requisitos: AWS CLI configurado (aws configure)
+
+# 1. Clonar repositório (se ainda não clonou)
+git clone https://github.com/jlui70/monitoring-security-level5.git
+cd monitoring-security-level5
+
+# 2. Deploy completo na AWS (25-30 min)
 ./scripts/deploy-aws.sh
 
-# Cleanup (deleta tudo)
+# 3. Acessar via port-forward (TERMINAL DEVE FICAR ABERTO)
+kubectl port-forward -n monitoring svc/grafana 3000:3000
+kubectl port-forward -n monitoring svc/zabbix-web 8080:8080
+kubectl port-forward -n monitoring svc/prometheus 9090:9090
+
+# URLs locais:
+# - Grafana:    http://localhost:3000
+# - Zabbix:     http://localhost:8080
+# - Prometheus: http://localhost:9090
+
+# 4. Ver credenciais
+./scripts/show-credentials.sh
+
+# 5. Cleanup (deletar tudo)
 ./scripts/cleanup-aws.sh
 ```
 
 **Características:**
-- ✅ Mesma stack (Vault, ESO, MySQL, Zabbix, Grafana, Prometheus)
-- ✅ Mesma automação (scripts idênticos ao Kind)
-- ✅ Storage: EBS gp3 (persistente)
-- ✅ Acesso: Port-forward manual
+- ✅ Cluster EKS real (3 nodes t3.medium)
+- ✅ Storage persistente (EBS gp3)
+- ✅ Mesma automação do Kind
+- ⚠️ Acesso manual (port-forward)
 - 💰 Custo: ~$0.30/hora (~$216/mês)
 
 ---
 
-### 🌐 **Opção 3: Deploy AWS EKS + Ingress + HTTPS (Domínio Público)**
+## 🌐 **Opção 3: Deploy AWS EKS + Ingress + HTTPS (Produção)**
 
-📖 **[Guia Completo - Ingress + HTTPS](docs/INGRESS-HTTPS-SETUP.md)**
+**✅ Acesso público HTTPS • ✅ Certificados SSL gratuitos • ✅ Pronto para apresentações**
 
-**Versão avançada com acesso público via HTTPS:**
+### 📖 Guia Completo
+- **[INGRESS-HTTPS-SETUP.md](docs/INGRESS-HTTPS-SETUP.md)** - Instruções detalhadas
+
+### ⚙️ Pré-requisitos OBRIGATÓRIOS
+
+1. **AWS CLI configurado** (`aws configure`)
+2. **Domínio registrado** (HostGator, GoDaddy, etc)
+3. **Acesso ao painel DNS** do domínio
+4. **Email válido** (para notificações Let's Encrypt)
+
+### 🔴 CONFIGURAÇÃO OBRIGATÓRIA
+
+**ANTES de fazer deploy**, edite o arquivo:
+
 ```bash
-# Alternar para branch com Ingress
-git checkout feature/ingress-https
-
-# Editar domínio no script
+# Editar script
 nano scripts/deploy-aws-ingress.sh
-# Alterar: DOMAIN="seu-dominio.com.br"
 
-# Deploy completo (30-40 min)
-./scripts/deploy-aws-ingress.sh
+# Linhas 13-14: Alterar valores
+DOMAIN="SEU-DOMINIO.com.br"          # ← Substituir pelo seu domínio
+EMAIL="seu-email@exemplo.com"        # ← Substituir pelo seu email
 
-# Configurar DNS no HostGator (4 CNAMEs)
-# Aguardar propagação (5-30 min)
-
-# Acessar via HTTPS
-# https://grafana.seu-dominio.com.br
-# https://zabbix.seu-dominio.com.br
-# https://prometheus.seu-dominio.com.br
+# Exemplo:
+DOMAIN="devopsproject.com.br"
+EMAIL="luiz7030@gmail.com"
 ```
 
-**Características adicionais:**
-- ✅ **NGINX Ingress Controller** - Roteamento HTTP/HTTPS inteligente
-- ✅ **Cert-Manager** - Certificados SSL/TLS gratuitos (Let's Encrypt)
-- ✅ **Domínio público** - Acesso via subdomínios personalizados
-- ✅ **HTTPS automático** - Renovação de certificados a cada 60 dias
-- ✅ **1 Load Balancer** - Economia vs múltiplos LBs
+### ⚡ Quick Start
+
+```bash
+# 1. Clonar e alternar para branch Ingress
+git clone https://github.com/jlui70/monitoring-security-level5.git
+cd monitoring-security-level5
+git checkout feature/ingress-https
+
+# 2. ⚠️ EDITAR domínio e email (OBRIGATÓRIO)
+nano scripts/deploy-aws-ingress.sh
+
+# 3. Deploy completo (30-40 min)
+./scripts/deploy-aws-ingress.sh
+
+# 4. Configurar DNS (HostGator)
+# - Copiar endereço do Load Balancer exibido no final
+# - Criar 3 CNAMEs no painel DNS:
+#   grafana.SEU-DOMINIO.com.br    → endereço-load-balancer
+#   zabbix.SEU-DOMINIO.com.br     → endereço-load-balancer
+#   prometheus.SEU-DOMINIO.com.br → endereço-load-balancer
+
+# 5. Aguardar propagação DNS (5-30 min)
+
+# 6. Acessar via HTTPS (cadeado verde!)
+# https://grafana.SEU-DOMINIO.com.br
+# https://zabbix.SEU-DOMINIO.com.br
+# https://prometheus.SEU-DOMINIO.com.br
+
+# 7. Ver credenciais
+./scripts/show-credentials.sh
+
+# 8. Cleanup (deletar tudo + remover CNAMEs manualmente)
+./scripts/cleanup-aws-ingress.sh
+```
+
+**Características:**
+- ✅ NGINX Ingress Controller
+- ✅ Cert-Manager (Let's Encrypt)
+- ✅ Certificados SSL válidos (renovação automática)
+- ✅ Acesso via HTTPS público
+- ✅ 1 Load Balancer para todas as apps
+- ⚠️ Requer domínio próprio
 - 💰 Custo: ~$0.46/hora (~$330/mês)
 
-**Ideal para:**
-- ✅ Apresentações profissionais
-- ✅ Demos para clientes
-- ✅ Portfolio técnico
-- ✅ Validação de conceitos
+---
+
+## 📚 **Qual opção escolher?**
+
+### Use **Opção 1 (Kind Local)** se você quer:
+- ✅ Aprender Kubernetes sem custos
+- ✅ Testar a stack localmente
+- ✅ Desenvolvimento e debug
+- ✅ Não tem conta AWS ou domínio
+
+### Use **Opção 2 (AWS Básico)** se você quer:
+- ✅ Validar em cluster real na nuvem
+- ✅ Testar storage persistente (EBS)
+- ✅ Não precisa de acesso público
+- ✅ Economia (sem Load Balancer)
+
+### Use **Opção 3 (AWS + Ingress)** se você quer:
+- ✅ Demonstração profissional
+- ✅ Portfolio com HTTPS válido
+- ✅ Apresentação para clientes
+- ✅ Validar arquitetura completa
+- ✅ Aprender Ingress Controller + Cert-Manager
 
 ---
 

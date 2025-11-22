@@ -1,8 +1,22 @@
 #!/bin/bash
 
+# ═══════════════════════════════════════════════════════════════════════════
 # Script de Deploy AWS EKS com Ingress + HTTPS
+# ═══════════════════════════════════════════════════════════════════════════
 # Versão avançada com domínio público e certificados SSL automáticos
 # Baseado no deploy-aws.sh + Ingress Controller + Cert-Manager
+#
+# ⚠️  CONFIGURAÇÃO OBRIGATÓRIA ANTES DE EXECUTAR:
+#
+# 1. Substitua DOMAIN pelo seu domínio registrado (linha 17)
+# 2. Substitua EMAIL pelo seu email válido (linha 18)
+# 3. Tenha acesso ao painel DNS do seu domínio (HostGator/GoDaddy)
+#
+# Exemplo:
+#   DOMAIN="meusite.com.br"
+#   EMAIL="meu-email@gmail.com"
+#
+# ═══════════════════════════════════════════════════════════════════════════
 
 set -e
 
@@ -12,10 +26,12 @@ REGION="us-east-1"
 NODE_TYPE="t3.medium"
 NODES_COUNT=3
 
-# ⚠️ CONFIGURAÇÃO DO DOMÍNIO
-# Substitua pelo seu domínio real antes de executar
-DOMAIN="devopsproject.com.br"
-EMAIL="luiz7030@gmail.com"  # Para Let's Encrypt
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  EDITE AQUI - DOMÍNIO E EMAIL
+# ═══════════════════════════════════════════════════════════════════════════
+DOMAIN="devopsproject.com.br"        # ← SEU DOMÍNIO (obrigatório)
+EMAIL="luiz7030@gmail.com"           # ← SEU EMAIL (obrigatório)
+# ═══════════════════════════════════════════════════════════════════════════
 
 echo "🚀 Deploy AWS EKS - Monitoring com Ingress + HTTPS"
 echo "=================================================="
@@ -82,7 +98,16 @@ echo ""
 echo "✅ Cluster criado!"
 echo ""
 
-echo "⏱️  ETAPA 2/10: Instalando EBS CSI Driver..."
+echo "⏱️  ETAPA 2/10: Configurando IAM OIDC Provider..."
+eksctl utils associate-iam-oidc-provider \
+  --cluster $CLUSTER_NAME \
+  --region $REGION \
+  --approve
+
+echo "✅ OIDC Provider associado!"
+echo ""
+
+echo "⏱️  ETAPA 3/10: Instalando EBS CSI Driver..."
 eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
   --namespace kube-system \
@@ -92,17 +117,23 @@ eksctl create iamserviceaccount \
   --approve \
   --override-existing-serviceaccounts
 
+# Aguardar role ser criado
+sleep 5
+
+# Obter ARN do role criado
+ROLE_ARN=$(aws iam list-roles --query "Roles[?contains(RoleName, 'eksctl-${CLUSTER_NAME}-addon-iamserviceaccount-kube-system-ebs-csi')].Arn" --output text)
+
 eksctl create addon \
   --name aws-ebs-csi-driver \
   --cluster $CLUSTER_NAME \
   --region $REGION \
-  --service-account-role-arn $(aws iam list-roles --query "Roles[?RoleName=='eksctl-${CLUSTER_NAME}-addon-iamserviceaccount-Role1-*'].Arn" --output text) \
+  --service-account-role-arn $ROLE_ARN \
   --force
 
 echo "✅ EBS CSI Driver instalado!"
 echo ""
 
-echo "⏱️  ETAPA 3/10: Criando namespace e StorageClass..."
+echo "⏱️  ETAPA 4/11: Criando namespace e StorageClass..."
 kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
 
 cat <<EOF | kubectl apply -f -
@@ -120,7 +151,7 @@ EOF
 echo "✅ Namespace e StorageClass criados!"
 echo ""
 
-echo "⏱️  ETAPA 4/10: Deploy Vault (dev mode)..."
+echo "⏱️  ETAPA 5/11: Deploy Vault (dev mode)..."
 kubectl apply -f ../kubernetes/02-vault/
 
 echo "⏱️  Aguardando Vault ficar pronto (60s)..."
@@ -129,7 +160,7 @@ sleep 60
 echo "✅ Vault pronto!"
 echo ""
 
-echo "⏱️  ETAPA 5/10: Criando vault-token para ExternalSecrets..."
+echo "⏱️  ETAPA 6/11: Criando vault-token para ExternalSecrets..."
 kubectl create secret generic vault-token \
   -n monitoring \
   --from-literal=token=vault-dev-root-token \
@@ -138,7 +169,7 @@ kubectl create secret generic vault-token \
 echo "✅ vault-token criado!"
 echo ""
 
-echo "⏱️  ETAPA 6/10: Instalando External Secrets Operator..."
+echo "⏱️  ETAPA 7/11: Instalando External Secrets Operator..."
 helm repo add external-secrets https://charts.external-secrets.io 2>/dev/null || true
 helm repo update
 
@@ -148,7 +179,7 @@ helm upgrade --install external-secrets \
   --create-namespace \
   --wait
 
-kubectl apply -f ../kubernetes/01-external-secrets/
+kubectl apply -f ../kubernetes/03-external-secrets/
 
 echo "⏱️  Aguardando ExternalSecrets sincronizar (30s)..."
 sleep 30
@@ -163,7 +194,7 @@ fi
 echo "✅ External Secrets Operator instalado!"
 echo ""
 
-echo "⏱️  ETAPA 7/10: Deploy MySQL..."
+echo "⏱️  ETAPA 8/11: Deploy MySQL..."
 kubectl apply -f ../kubernetes/05-mysql/
 
 echo "⏱️  Aguardando MySQL ficar pronto (60s)..."
@@ -172,7 +203,7 @@ sleep 60
 echo "✅ MySQL pronto!"
 echo ""
 
-echo "⏱️  ETAPA 8/10: Deploy Zabbix + Prometheus..."
+echo "⏱️  ETAPA 9/11: Deploy Zabbix + Prometheus..."
 kubectl apply -f ../kubernetes/06-zabbix/
 kubectl apply -f ../kubernetes/07-prometheus/
 
@@ -182,7 +213,7 @@ sleep 90
 echo "✅ Zabbix e Prometheus prontos!"
 echo ""
 
-echo "⏱️  ETAPA 9/10: Instalando Ingress Controller + Cert-Manager..."
+echo "⏱️  ETAPA 10/11: Instalando Ingress Controller + Cert-Manager..."
 echo ""
 echo "   9.1: NGINX Ingress Controller (2-3 min)..."
 kubectl apply -f ../kubernetes/08-ingress/01-ingress-controller.yaml
@@ -191,11 +222,14 @@ echo "⏱️  Aguardando Load Balancer ser criado (120s)..."
 sleep 120
 
 # Substituir domínio no ClusterIssuer
-echo "   9.2: Cert-Manager..."
-kubectl apply -f ../kubernetes/08-ingress/02-cert-manager.yaml
+echo "   9.2: Cert-Manager (instalação oficial)..."
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 
-echo "⏱️  Aguardando Cert-Manager ficar pronto (30s)..."
-sleep 30
+echo "⏱️  Aguardando Cert-Manager ficar pronto (60s)..."
+sleep 60
+
+# Verificar se pods do cert-manager estão prontos
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=120s 2>/dev/null || true
 
 # Substituir email no ClusterIssuer
 sed "s/seu-email@exemplo.com/$EMAIL/g" ../kubernetes/08-ingress/03-cluster-issuer.yaml | kubectl apply -f -
@@ -214,10 +248,11 @@ sed "s/devopsproject.com.br/$DOMAIN/g" ../kubernetes/08-ingress/04-monitoring-in
 echo "✅ Ingress Controller + Cert-Manager instalados!"
 echo ""
 
-echo "⏱️  ETAPA 10/10: Deploy Grafana e configuração final..."
+echo "⏱️  ETAPA 11/11: Deploy Grafana e configuração final..."
 kubectl apply -f ../kubernetes/08-grafana/
+kubectl apply -f ../kubernetes/09-node-exporter/
 
-echo "⏱️  Aguardando Grafana ficar pronto (60s)..."
+echo "⏱️  Aguardando Grafana e Node Exporter ficarem prontos (60s)..."
 sleep 60
 
 # Configurar Zabbix
