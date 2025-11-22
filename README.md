@@ -185,9 +185,6 @@ Este projeto oferece **3 formas de deployment**. Escolha conforme sua necessidad
 
 **✅ Sem custos • ✅ Sem configuração AWS • ✅ Rápido (5-10 min)**
 
-### 📖 Guia Completo
-- **[SETUP-LOCAL.md](docs/SETUP-LOCAL.md)** - Instruções detalhadas
-
 ### ⚡ Quick Start
 
 ```bash
