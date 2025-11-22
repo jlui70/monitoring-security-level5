@@ -20,6 +20,13 @@
 
 set -e
 
+# Detectar diretório do projeto (assume que o script está em scripts/)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "${SCRIPT_DIR}/.." && pwd )"
+
+# Mudar para o diretório raiz do projeto
+cd "${PROJECT_ROOT}"
+
 PROJECT_NAME="monitoring-level5-ingress"
 CLUSTER_NAME="monitoring-security-level5"
 REGION="us-east-1"
@@ -166,7 +173,7 @@ echo "✅ Namespace e StorageClass criados!"
 echo ""
 
 echo "⏱️  ETAPA 5/11: Deploy Vault (dev mode)..."
-kubectl apply -f ../kubernetes/02-vault/
+kubectl apply -f kubernetes/02-vault/
 
 echo "⏱️  Aguardando Vault ficar pronto (60s)..."
 sleep 60
@@ -196,7 +203,7 @@ helm upgrade --install external-secrets \
 echo "⏱️  Aguardando webhooks ficarem prontos (60s)..."
 kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=external-secrets-webhook -n external-secrets-system --timeout=120s 2>/dev/null || sleep 60
 
-kubectl apply -f ../kubernetes/03-external-secrets/
+kubectl apply -f kubernetes/03-external-secrets/
 
 echo "⏱️  Aguardando ExternalSecrets sincronizar (30s)..."
 sleep 30
@@ -212,7 +219,7 @@ echo "✅ External Secrets Operator instalado!"
 echo ""
 
 echo "⏱️  ETAPA 8/11: Deploy MySQL..."
-kubectl apply -f ../kubernetes/05-mysql/
+kubectl apply -f kubernetes/05-mysql/
 
 echo "⏱️  Aguardando MySQL ficar pronto (60s)..."
 sleep 60
@@ -221,8 +228,8 @@ echo "✅ MySQL pronto!"
 echo ""
 
 echo "⏱️  ETAPA 9/11: Deploy Zabbix + Prometheus..."
-kubectl apply -f ../kubernetes/06-zabbix/
-kubectl apply -f ../kubernetes/07-prometheus/
+kubectl apply -f kubernetes/06-zabbix/
+kubectl apply -f kubernetes/07-prometheus/
 
 echo "⏱️  Aguardando Zabbix e Prometheus ficarem prontos (120s)..."
 echo "   (Zabbix pode reiniciar algumas vezes, é normal)"
@@ -234,7 +241,7 @@ echo ""
 echo "⏱️  ETAPA 10/11: Instalando Ingress Controller + Cert-Manager..."
 echo ""
 echo "   9.1: NGINX Ingress Controller (2-3 min)..."
-kubectl apply -f ../kubernetes/08-ingress/01-ingress-controller.yaml
+kubectl apply -f kubernetes/08-ingress/01-ingress-controller.yaml
 
 echo "⏱️  Aguardando Load Balancer ser criado (120s)..."
 sleep 120
@@ -250,25 +257,25 @@ sleep 60
 kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=120s 2>/dev/null || true
 
 # Substituir email no ClusterIssuer
-sed "s/seu-email@exemplo.com/$EMAIL/g" ../kubernetes/08-ingress/03-cluster-issuer.yaml | kubectl apply -f -
+sed "s/seu-email@exemplo.com/$EMAIL/g" kubernetes/08-ingress/03-cluster-issuer.yaml | kubectl apply -f -
 
 echo "   9.3: ClusterIssuer configurado!"
 echo ""
 
 # Aplicar Services ClusterIP (substitui NodePort)
 echo "   9.4: Aplicando Services ClusterIP..."
-kubectl apply -f ../kubernetes/08-ingress/services-clusterip/
+kubectl apply -f kubernetes/08-ingress/services-clusterip/
 
 # Substituir domínio no Ingress e aplicar
 echo "   9.5: Configurando Ingress rules..."
-sed "s/devopsproject.com.br/$DOMAIN/g" ../kubernetes/08-ingress/04-monitoring-ingress.yaml | kubectl apply -f -
+sed "s/devopsproject.com.br/$DOMAIN/g" kubernetes/08-ingress/04-monitoring-ingress.yaml | kubectl apply -f -
 
 echo "✅ Ingress Controller + Cert-Manager instalados!"
 echo ""
 
 echo "⏱️  ETAPA 11/11: Deploy Grafana e configuração final..."
-kubectl apply -f ../kubernetes/08-grafana/
-kubectl apply -f ../kubernetes/09-node-exporter/
+kubectl apply -f kubernetes/08-grafana/
+kubectl apply -f kubernetes/09-node-exporter/
 
 echo "⏱️  Aguardando Grafana e Node Exporter ficarem prontos (90s)..."
 sleep 90
@@ -279,7 +286,7 @@ kubectl wait --for=condition=ready pod -l app=zabbix-web -n monitoring --timeout
 
 # Configurar Zabbix
 echo "🔧 Configurando Zabbix..."
-../scripts/configure-zabbix-aws.sh || echo "   ⚠️  Configuração do Zabbix falhou, você pode executar manualmente depois"
+scripts/configure-zabbix-aws.sh || echo "   ⚠️  Configuração do Zabbix falhou, você pode executar manualmente depois"
 
 # Verificar se Grafana está pronto antes de configurar
 echo "⏱️  Verificando se Grafana está pronto..."
@@ -287,7 +294,7 @@ kubectl wait --for=condition=ready pod -l app=grafana -n monitoring --timeout=60
 
 # Configurar Grafana
 echo "🔧 Configurando Grafana..."
-../scripts/configure-grafana-aws.sh
+scripts/configure-grafana-aws.sh
 
 echo "✅ Configuração completa!"
 echo ""
