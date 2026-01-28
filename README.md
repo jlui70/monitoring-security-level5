@@ -7,7 +7,22 @@
 ![External Secrets](https://img.shields.io/badge/External%20Secrets-Operator-purple)
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-green)
 
-**Stack completa de monitoramento em Kubernetes** com HashiCorp Vault e External Secrets Operator para gerenciamento automático de credenciais.
+## 📋 **Sobre Este Projeto**
+
+Este projeto apresenta a implementação mais avançada da série Monitoring Security Evolution, combinando Kubernetes com HashiCorp Vault e External Secrets Operator para gerenciamento automático e seguro de credenciais em ambientes cloud-native.
+
+A solução elimina completamente o uso de arquivos `.env`, criando uma arquitetura production-ready onde:
+
+🏦 **HashiCorp Vault** armazena e versiona todos os secrets com criptografia AES-256
+🔄 **External Secrets Operator** sincroniza automaticamente Vault → Kubernetes Secrets
+☸️ **Kubernetes** orquestra stack completa de monitoramento (Zabbix + Grafana + Prometheus)
+🗄️ **MySQL 8.3** gerenciado com credenciais rotacionadas automaticamente
+📊 **Node Exporter + Dashboards** para observabilidade completa da infraestrutura
+🌍 **Multi-cloud ready** compatível com AWS EKS, GCP GKE, Azure AKS e clusters on-premise
+
+🎯 **Objetivo**: Demonstrar a evolução definitiva de segurança em DevOps, partindo de credenciais hardcoded (Level 1) até uma solução enterprise-grade com Vault nativo em Kubernetes, totalmente automatizada e aderente às melhores práticas de cloud-native security.
+
+✅ **Resultado**: Stack de monitoramento production-ready com ZERO arquivos de configuração sensíveis, sincronização automática de secrets, auto-recovery de falhas e base sólida para ambientes corporativos multi-cloud.
 
 ---
 
@@ -626,20 +641,31 @@ Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para de
 
 ---
 
-## 📄 **Licença**
+## 📄 Licença
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
-
-**Desenvolvido com ❤️ para a comunidade DevOps/SRE brasileira**
+Este projeto está sob licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
-<div align="center">
+## 📞 Contato e Suporte
 
-### 🌟 **Monitoring Security Evolution Series** 🌟
+### 🌐 Conecte-se Comigo
 
-**Do básico ao enterprise-grade em 5 níveis progressivos**
+- 📹 **YouTube**: [DevOps Project](https://devopsproject.com.br/)
+- 💼 **Portfólio**: [devopsproject.com.br](https://devopsproject.com.br/)
+- 💻 **GitHub**: [@jlui70](https://github.com/jlui70)
 
-[![GitHub](https://img.shields.io/badge/GitHub-jlui70-black?style=flat-square&logo=github)](https://github.com/jlui70)
+### 🌟 Gostou do Projeto?
 
-</div>
+Se este projeto foi útil para você:
+
+- ⭐ Dê uma estrela nos repositórios
+- 🔄 Compartilhe com a comunidade
+- 📹 Inscreva-se no canal do YouTube
+- 🤝 Contribua com melhorias
+
+---
+
+**🎯 Este é o nível mais avançado da jornada completa de segurança. Do hardcode ao enterprise-grade em 5 níveis progressivos!**
+
+*"A segurança é uma jornada contínua. Do básico ao Kubernetes, cada nível constrói uma base mais sólida para ambientes production-ready."*

@@ -16,6 +16,10 @@ README-EN.md
 README.md.old
 publish-to-github.sh
 
+# Documentação interna e arquivos pessoais
+docs-internos/
+*.txt
+
 # Logs e temporários
 *.log
 logs/
