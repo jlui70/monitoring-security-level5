@@ -1,6 +1,8 @@
 # 🔐 Monitoring Security Evolution - Nível 5: Kubernetes + Vault
 ## Stack de Monitoramento com External Secrets Operator
 
+![Architecture Diagram](Diagrama%20camadas%20Monitoring%20Security%205.png)
+
 ![Security Level](https://img.shields.io/badge/Security%20Level-5%20Kubernetes%20%2B%20Vault-brightgreen)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.34-blue)
 ![Vault](https://img.shields.io/badge/HashiCorp-Vault-black)
